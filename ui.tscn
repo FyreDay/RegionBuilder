@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dul0iyid6mrdt"]
+
+[ext_resource type="Script" uid="uid://dhq3kxbfkgart" path="res://ui.gd" id="1_fyqef"]
+
+[node name="UI" type="Control" unique_id=2092799128]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fyqef")
+
+[node name="FilePngDialog" type="FileDialog" parent="." unique_id=528148589]
+oversampling_override = 1.0
+title = "Open a File"
+position = Vector2i(0, 36)
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png")
+use_native_dialog = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=712812227]
+
+[node name="Button" type="Button" parent="CanvasLayer" unique_id=1295835011]
+offset_left = 16.0
+offset_top = 9.0
+offset_right = 206.0
+offset_bottom = 125.0
+text = "Open Map"
+
+[connection signal="file_selected" from="FilePngDialog" to="." method="_on_file_dialog_file_selected"]
+[connection signal="pressed" from="CanvasLayer/Button" to="." method="_on_button_pressed"]

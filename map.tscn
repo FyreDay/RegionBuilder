@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://2v0g4y4q567a"]
+
+[ext_resource type="Script" uid="uid://j8caldpkpioj" path="res://map.gd" id="1_c7s6e"]
+[ext_resource type="Script" uid="uid://ci0y6muddqoq2" path="res://CameraController.gd" id="2_wijl4"]
+
+[node name="Map" type="Node2D" unique_id=1979348769]
+script = ExtResource("1_c7s6e")
+
+[node name="map_sprite" type="Sprite2D" parent="." unique_id=1854175423]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1024958070]
+script = ExtResource("2_wijl4")
