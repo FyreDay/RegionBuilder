@@ -16,6 +16,7 @@ var region_color := Color.WHITE
 var old_region_color
 var node_rect := Rect2(Vector2.ZERO,Vector2(100,100))
 var region_name = ""
+var is_hovered := false
 const alpha = .3
 
 var merge_controller
@@ -28,7 +29,10 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-    pass
+    var mouse_pos := get_global_mouse_position()
+    var hovered = node_rect.has_point(to_local(mouse_pos))
+    if hovered != is_hovered:
+        is_hovered = hovered
 
 func setup(rect: Rect2):
     node_rect = rect.abs()
@@ -49,22 +53,25 @@ func _draw() -> void:
     draw_string(font,Vector2(x, y),region_name,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size)
 
 func _input(event: InputEvent) -> void:
+    
+        
     if event.is_action_pressed("open_object_menu"):
         if Input.is_key_pressed(KEY_SHIFT):
             return
-        var mouse_pos := get_global_mouse_position()
 
-        if node_rect.has_point(to_local(mouse_pos)):
+        if is_hovered:
             open_edit_menu()
     if event.is_action_pressed("click"):
-        var mouse_pos := get_global_mouse_position()
-
-        if node_rect.has_point(to_local(mouse_pos)):
+        if is_hovered:
             clicked_region.emit(self)
+    
+    
 
 func open_edit_menu():
     if not is_merge_controller:
         merge_controller.open_edit_menu()
+        return
+    if get_viewport() == null:
         return
     popup_opened.emit()
     name_edit.text = region_name
@@ -174,11 +181,13 @@ func _on_merge_button_pressed() -> void:
     else:
         merge_start.emit(merge_controller)
         
-
-
 func _on_color_changer_popup_closed() -> void:
     color_change_request.emit(self, region_color, old_region_color)
 
 
 func _on_color_changer_picker_created() -> void:
     old_region_color = region_color
+
+
+func _on_copy_name_button_pressed() -> void:
+    DisplayServer.clipboard_set(region_name)

@@ -14,8 +14,12 @@ script = ExtResource("1_rtl5y")
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 116.0
-offset_bottom = 132.0
+offset_bottom = 167.0
 size_flags_vertical = 3
+
+[node name="CopyNameButton" type="Button" parent="EditMenu/VBoxContainer" unique_id=69918670]
+layout_mode = 2
+text = "Copy Name"
 
 [node name="NameEdit" type="LineEdit" parent="EditMenu/VBoxContainer" unique_id=1611688953]
 layout_mode = 2
@@ -35,6 +39,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_rtl5y")
 text = "Delete"
 
 [connection signal="popup_hide" from="EditMenu" to="." method="_on_edit_menu_popup_hide"]
+[connection signal="pressed" from="EditMenu/VBoxContainer/CopyNameButton" to="." method="_on_copy_name_button_pressed"]
 [connection signal="text_changed" from="EditMenu/VBoxContainer/NameEdit" to="." method="_on_name_edit_text_changed"]
 [connection signal="color_changed" from="EditMenu/VBoxContainer/ColorChanger" to="." method="_on_color_changer_color_changed"]
 [connection signal="picker_created" from="EditMenu/VBoxContainer/ColorChanger" to="." method="_on_color_changer_picker_created"]
