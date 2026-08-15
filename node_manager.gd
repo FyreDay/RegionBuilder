@@ -3,6 +3,7 @@ extends Node2D
 signal popup_opened
 signal popup_closed
 signal hovered_region_update
+signal save_data_ready
 
 var region_scene = preload("res://region.tscn")
 var entrance_scene = preload("res://entrance.tscn")
@@ -15,9 +16,6 @@ var mergingRegion = null
 var hovered_region = null
 var entrance_from_region = null
 
-var regions = []
-var entrances = null
-
 var undo_redo := UndoRedo.new()
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -28,34 +26,49 @@ func _ready() -> void:
 func _process(delta: float) -> void:
     draw_region(delta)
     draw_entrance(delta)
-    update_hovered_region()
-    
-func update_hovered_region():
+    get_hovered_object()
+
+func get_hovered_object():
     var mouse_pos := get_global_mouse_position()
-    var new_hovered_region = null
+    var result = null
+    var highest_z := -INF
 
-    for region in regions:
-        if not is_instance_valid(region):
-            continue
-
-        if region.node_rect.has_point(region.to_local(mouse_pos)):
-            new_hovered_region = region
-            break
-
-    if new_hovered_region != hovered_region:
-        hovered_region = new_hovered_region
-        print(hovered_region)
-        var controller_region = null
-        if new_hovered_region != null:
-             controller_region = hovered_region if hovered_region.is_merge_controller else hovered_region.merge_controller
-        hovered_region_update.emit(hovered_region,controller_region)
+    for child in get_children():
+        if child.has_method("is_mouse_over") and child.is_mouse_over(mouse_pos):
+            if child.z_index >= highest_z:
+                highest_z = child.z_index
+                result = child
+    if result != null and result.has_method("get_controller"):
+        hovered_region = result.get_controller()
+        hovered_region_update.emit(result, hovered_region)
+    else:
+        hovered_region = null
+        hovered_region_update.emit(null, null)
+    return result
 
 func _input(event: InputEvent) -> void:
+    if event.is_action_pressed("open_object_menu"):
+        if Input.is_key_pressed(KEY_SHIFT):
+            return
+        var object = get_hovered_object()
+        if object:
+            object.open_edit_menu()
+    if event.is_action_pressed("click"):
+        var object = get_hovered_object()
+        if isMerging and object is Region:
+            if object.is_merge_valid(mergingRegion):
+                undo_redo.create_action("Merge Region")
+                undo_redo.add_do_method(do_region_merge.bind(object, mergingRegion))
+                undo_redo.add_undo_method(undo_region_merge.bind(object.snapshot_regions(), mergingRegion.snapshot_regions()))
+                undo_redo.commit_action()
+            isMerging = false
     if event.is_action_pressed("redo"):
         undo_redo.redo()
         return
     if event.is_action_pressed("undo"):
         undo_redo.undo()
+   
+    
     
 
 func _draw() -> void:
@@ -148,20 +161,22 @@ func draw_region(delta):
 func create_region(rect: Rect2):
     var region = region_scene.instantiate()
     region.setup(rect)
-    region.popup_opened.connect(_on_popup_opened)
-    region.popup_closed.connect(_on_popup_closed)
-    region.delete_region.connect(_on_delete_region)
-    region.merge_start.connect(_on_merge_start)
-    region.clicked_region.connect(_on_region_clicked)
-    region.name_change_request.connect(_on_region_name_change_requested)
-    region.color_change_request.connect(_on_region_color_change_requested)
-    #TODO: move to undo/redo
-    regions.append(region)
+    connect_region_signals(region)
     undo_redo.create_action("Create Region")
     undo_redo.add_do_method(add_child.bind(region))
     undo_redo.add_undo_method(remove_child.bind(region))
     undo_redo.commit_action()
-    
+
+func connect_region_signals(region):
+    region.popup_opened.connect(_on_popup_opened)
+    region.popup_closed.connect(_on_popup_closed)
+    region.delete_region.connect(_on_delete_region)
+    region.merge_start.connect(_on_merge_start)
+    region.name_change_request.connect(_on_region_name_change_requested)
+    region.color_change_request.connect(_on_region_color_change_requested)
+    region.drag_ended.connect(_on_region_drag_ended)
+    region.resize_ended.connect(_on_region_resize_ended)
+
 func draw_entrance(delta):
     if isDrawingRegion:
         return
@@ -191,17 +206,21 @@ func draw_entrance(delta):
 func create_entrance(from_region, to_region, from_pos, to_pos, dual_directional):
     var entrance = entrance_scene.instantiate()
     entrance.setup(from_region, to_region, from_pos, to_pos, dual_directional)
-    entrance.popup_opened.connect(_on_popup_opened)
-    entrance.popup_closed.connect(_on_popup_closed)
-    entrance.delete_entrance.connect(_on_delete_entrance)
-    entrance.rule_change_request.connect(_on_rule_change)
-    entrance.endpoint_drag_ended.connect(on_endpoint_drag_end)
-    hovered_region_update.connect(entrance._on_hovered_region)
+    connect_entrance_signals(entrance)
     undo_redo.create_action("Create Entrance")
     undo_redo.add_do_method(add_child.bind(entrance))
     undo_redo.add_undo_method(remove_child.bind(entrance))
     undo_redo.commit_action()
-    
+
+func connect_entrance_signals(entrance):
+    entrance.popup_opened.connect(_on_popup_opened)
+    entrance.popup_closed.connect(_on_popup_closed)
+    entrance.delete_entrance.connect(_on_delete_entrance)
+    entrance.rule_change_request.connect(_on_rule_change)
+    entrance.name_change_request.connect(_on_entrance_name_change_requested)
+    entrance.endpoint_drag_ended.connect(on_endpoint_drag_end)
+    hovered_region_update.connect(entrance._on_hovered_region)
+
 func do_region_merge(region, new_parent_region):
     region.do_merge(new_parent_region)
 
@@ -249,16 +268,6 @@ func _on_merge_start(region):
     isMerging = true
     mergingRegion = region
     
-    
-func _on_region_clicked(region):
-    if isMerging:
-        if region.is_merge_valid(mergingRegion):
-            undo_redo.create_action("Merge Region")
-            undo_redo.add_do_method(do_region_merge.bind(region, mergingRegion))
-            undo_redo.add_undo_method(undo_region_merge.bind(region.snapshot_regions(), mergingRegion.snapshot_regions()))
-            undo_redo.commit_action()
-        isMerging = false
-        
 func _on_region_name_change_requested(region, new_name):
     var old_name = region.region_name
 
@@ -268,6 +277,7 @@ func _on_region_name_change_requested(region, new_name):
     undo_redo.add_undo_method(region.set_region_name.bind(old_name))
 
     undo_redo.commit_action()
+    
 func _on_region_color_change_requested(region, new_color, old_color):
 
     undo_redo.create_action("Change Region Color")
@@ -276,7 +286,19 @@ func _on_region_color_change_requested(region, new_color, old_color):
     undo_redo.add_undo_method(region.set_region_color.bind(old_color))
 
     undo_redo.commit_action()
-
+    
+func _on_region_drag_ended(region, old_pos, new_pos):
+    print("on drag")
+    undo_redo.create_action("Drag Region")
+    undo_redo.add_do_method(region.set_rect_pos.bind(new_pos))
+    undo_redo.add_undo_method(region.set_rect_pos.bind(old_pos))
+    undo_redo.commit_action()
+    
+func _on_region_resize_ended(region, old_size, new_size):
+    undo_redo.create_action("Resize Region")
+    undo_redo.add_do_method(region.set_rect_size.bind(new_size))
+    undo_redo.add_undo_method(region.set_rect_size.bind(old_size))
+    undo_redo.commit_action()
         
 func _on_delete_entrance(entrance):
     
@@ -296,3 +318,172 @@ func on_endpoint_drag_end(entrance, endpoint, old_pos, new_pos):
     undo_redo.add_do_method(entrance.set_endpoint.bind(endpoint, new_pos))
     undo_redo.add_undo_method(entrance.set_endpoint.bind(endpoint, old_pos))
     undo_redo.commit_action()
+    
+func _on_entrance_name_change_requested(entrance, new_name):
+    var old_name = entrance.entrance_name
+
+    undo_redo.create_action("Change Entrance Name")
+
+    undo_redo.add_do_method(entrance.set_entrance_name.bind(new_name))
+    undo_redo.add_undo_method(entrance.set_entrance_name.bind(old_name))
+
+    undo_redo.commit_action()
+    
+func save_data():
+    var data = {
+        "regions": [],
+        "entrances": []
+    }  
+    var region_ids := {}
+    var region_index := 0
+
+    for child in get_children():
+        if child is Region:
+            region_ids[child] = "region_" + str(region_index)
+            region_index += 1
+            
+    for child in get_children():
+        if child is Region:
+            var merge_id = null
+
+            if not child.is_merge_controller:
+                merge_id = region_ids[child.merge_controller]
+
+            data.regions.append({
+                "id": region_ids[child],
+                "position": [
+                    child.node_rect.position.x,
+                    child.node_rect.position.y
+                ],
+                "size": [
+                    child.node_rect.size.x,
+                    child.node_rect.size.y
+                ],
+                "name": child.region_name,
+                "color": [
+                    child.region_color.r,
+                    child.region_color.g,
+                    child.region_color.b,
+                    child.region_color.a
+                ],
+                "merge_controller": merge_id
+            })
+    for child in get_children():
+        if child is Entrance:
+            data.entrances.append({
+                "from_region": region_ids[child.from_region],
+                "to_region": region_ids[child.to_region],
+                "from_pos": [
+                    child.from_pos.x,
+                    child.from_pos.y
+                ],
+                "to_pos": [
+                    child.to_pos.x,
+                    child.to_pos.y
+                ],
+                "name": child.entrance_name,
+                "rule": child.rule_text,
+                "dual_directional": child.duel_directonal
+            })
+    save_data_ready.emit(data)
+    return data
+
+func load_data(data: Dictionary):
+    var region_lookup := {}
+    var regions = []
+    var entrances = []
+    #setup regions
+    for region_data in data.get("regions", []):
+        var region = region_scene.instantiate()
+
+        var rect := Rect2(
+            Vector2(
+                region_data.position[0],
+                region_data.position[1]
+            ), 
+            Vector2(
+                region_data.size[0],
+                region_data.size[1]
+            )
+        )
+
+        region.setup(rect)
+        region.region_name = region_data.name
+        region.region_color = Color(
+            region_data.color[0],
+            region_data.color[1],
+            region_data.color[2],
+            region_data.color[3]
+        )
+        
+        connect_region_signals(region)
+        region_lookup[region_data.id] = region
+        
+        regions.append(region)
+        add_child(region)
+        region.queue_redraw()
+    #setup controllers
+    for region_data in data.get("regions", []):
+        var region = region_lookup[region_data.id]
+
+        var controller_id = region_data.merge_controller
+
+        if controller_id != null:
+            var controller = region_lookup[controller_id]
+
+            region.merge_controller = controller
+            region.is_merge_controller = false
+            region.region_name = controller.region_name
+            region.region_color = controller.region_color
+
+            if not controller.region_references.has(region):
+                controller.region_references.append(region)
+        else:
+            region.is_merge_controller = true
+        region.queue_redraw()
+        
+    #setup entrances
+    for entrance_data in data.get("entrances", []):
+        var from_region = region_lookup[entrance_data.from_region]
+        var to_region = region_lookup[entrance_data.to_region]
+
+        var from_pos := Vector2(
+            entrance_data.from_pos[0],
+            entrance_data.from_pos[1]
+        )
+
+        var to_pos := Vector2(
+            entrance_data.to_pos[0],
+            entrance_data.to_pos[1]
+        )
+
+        var entrance = entrance_scene.instantiate()
+
+        entrance.setup(
+            from_region,
+            to_region,
+            from_pos,
+            to_pos,
+            entrance_data.dual_directional
+        )
+
+        entrance.entrance_name = entrance_data.name
+        entrance.rule_text = entrance_data.rule
+
+        connect_entrance_signals(entrance)
+
+        add_child(entrance)
+        entrances.append(entrance)
+    undo_load(regions, entrances)
+        
+func undo_load(regions, entrances):
+    undo_redo.create_action("Undo Load")
+    undo_redo.add_do_method(print.bind("Save Done"))
+    undo_redo.add_undo_method(remove_select_children.bind(regions, entrances))
+    undo_redo.commit_action()
+    
+func remove_select_children(regions, entrances):
+    for region in regions:
+        delete_region_and_reference(region)
+    for entrance in entrances:
+        remove_child(entrance)

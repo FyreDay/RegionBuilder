@@ -15,13 +15,17 @@ offset_left = 4.0
 offset_top = 4.0
 offset_right = 101.0
 offset_bottom = 136.0
+size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="NameEdit" type="LineEdit" parent="EditMenu/VBoxContainer" unique_id=679271565]
 layout_mode = 2
+expand_to_text_length = true
+emoji_menu_enabled = false
 
 [node name="RuleEdit" type="TextEdit" parent="EditMenu/VBoxContainer" unique_id=47965405]
 layout_mode = 2
+emoji_menu_enabled = false
 scroll_fit_content_height = true
 scroll_fit_content_width = true
 

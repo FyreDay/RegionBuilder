@@ -1,23 +1,34 @@
+class_name Region
 extends Node2D
 
 signal popup_opened
 signal popup_closed
 signal delete_region
 signal merge_start
-signal clicked_region
 signal name_change_request
 signal color_change_request
+signal drag_started
+signal drag_moved(region, delta)
+signal drag_ended
+signal resize_started
+signal resize_moved(region, delta)
+signal resize_ended
 
 @onready var edit_menu: PopupPanel = $EditMenu
 @onready var name_edit: LineEdit = $EditMenu/VBoxContainer/NameEdit
 @onready var color_changer: ColorPickerButton = $EditMenu/VBoxContainer/ColorChanger
+enum Dragables { TOP_BAR, RESIZE_HANDLE, NONE}
+const alpha = .3
+const TOP_BAR_HEIGHT = 18
 
 var region_color := Color.WHITE
 var old_region_color
 var node_rect := Rect2(Vector2.ZERO,Vector2(100,100))
 var region_name = ""
-var is_hovered := false
-const alpha = .3
+
+var current_dragable: Dragables = Dragables.NONE
+var drag_start_pos: Vector2
+var drag_old_pos: Vector2
 
 var merge_controller
 var region_references
@@ -29,10 +40,7 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-    var mouse_pos := get_global_mouse_position()
-    var hovered = node_rect.has_point(to_local(mouse_pos))
-    if hovered != is_hovered:
-        is_hovered = hovered
+    pass
 
 func setup(rect: Rect2):
     node_rect = rect.abs()
@@ -49,22 +57,125 @@ func _draw() -> void:
     
     var x := node_rect.position.x + (node_rect.size.x - text_width) / 2.0
     var y := node_rect.position.y + font_size
-    draw_rect(node_rect, region_color)
+    var region_rect = node_rect
+    region_rect.position.y = region_rect.position.y + TOP_BAR_HEIGHT
+    region_rect.size.y = region_rect.size.y - TOP_BAR_HEIGHT
+    draw_rect(region_rect, region_color)
+    var top_bar_rect = node_rect
+    top_bar_rect.size.y = TOP_BAR_HEIGHT
+    draw_rect(top_bar_rect, Color(Color.WEB_GRAY, .5))
     draw_string(font,Vector2(x, y),region_name,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size)
+    
+    var grip_size := 10.0
+    var grip_spacing := 4.0
+    var grip_width := 1.0
+
+    var corner := node_rect.end
+
+    for i in range(3):
+        var offset := i * grip_spacing
+
+        draw_line(
+            corner + Vector2(-grip_size + offset, -1),
+            corner + Vector2(-1, -grip_size + offset),
+            Color.DARK_GRAY,
+            grip_width,
+            false
+        )
 
 func _input(event: InputEvent) -> void:
-    
-        
-    if event.is_action_pressed("open_object_menu"):
-        if Input.is_key_pressed(KEY_SHIFT):
-            return
+    var mouse_pos := get_global_mouse_position()
+   
+    if event is InputEventMouseButton:
+        if event.button_index == MOUSE_BUTTON_LEFT:
+            if event.pressed:
+                current_dragable = Dragables.NONE
+                var dragable := get_clickable(mouse_pos)
 
-        if is_hovered:
-            open_edit_menu()
-    if event.is_action_pressed("click"):
-        if is_hovered:
-            clicked_region.emit(self)
+                if dragable != Dragables.NONE:
+                    current_dragable = dragable
+
+                    drag_start_pos = mouse_pos
+                    
+                    if dragable == Dragables.RESIZE_HANDLE:
+                        drag_old_pos = node_rect.size
+                        resize_started.emit(self)
+                    elif dragable == Dragables.TOP_BAR:
+                        drag_old_pos = node_rect.position
+                        drag_started.emit(self)
+                    
+                    get_viewport().set_input_as_handled()
+                    return
+            else:
+                if current_dragable == Dragables.NONE:
+                    return
+                var dragable := current_dragable
+                current_dragable = Dragables.NONE
+                
+                if dragable == Dragables.RESIZE_HANDLE:
+                    var new_size = node_rect.size
+                    resize_ended.emit(
+                        self,
+                        drag_old_pos,
+                        new_size
+                    )
+                elif dragable == Dragables.TOP_BAR:
+                    var new_pos = node_rect.position
+                    drag_ended.emit(
+                        self,
+                        drag_old_pos,
+                        new_pos
+                    )
+                
+                get_viewport().set_input_as_handled()
+                return
+                
+    if event is InputEventMouseMotion and Input.is_action_pressed("click"): 
+        if current_dragable != Dragables.NONE:
+            if current_dragable == Dragables.TOP_BAR:
+                node_rect.position = drag_old_pos + mouse_pos - drag_start_pos
+            elif current_dragable == Dragables.RESIZE_HANDLE:
+                var new_size = drag_old_pos + mouse_pos - drag_start_pos
+                new_size.x = 20 if new_size.x <= 20 else new_size.x
+                new_size.y = 20 if new_size.y <= 20 else new_size.y
+                node_rect.size = new_size
+            queue_redraw()
+            get_viewport().set_input_as_handled()
+
+func get_clickable(global_mouse_pos) -> Dragables:
+    var top_bar_rect = node_rect
+    top_bar_rect.size.y = TOP_BAR_HEIGHT
+    if global_mouse_pos.distance_to(node_rect.end) <= 12 and is_mouse_over(global_mouse_pos):
+        return Dragables.RESIZE_HANDLE
+    if top_bar_rect.has_point(to_local(global_mouse_pos)):
+        return Dragables.TOP_BAR
+    return Dragables.NONE
     
+func set_rect_pos(position):
+    node_rect.position = position
+    queue_redraw()
+    
+func set_rect_size(size):
+    node_rect.size = size
+    queue_redraw()
+    
+func is_mouse_over(global_mouse_pos: Vector2) -> bool:
+    return node_rect.has_point(to_local(global_mouse_pos))
+
+func is_mouse_over_merge(global_mouse_pos: Vector2) -> bool:
+    if is_merge_controller:
+        if is_mouse_over(global_mouse_pos):
+            return true
+        for region in region_references:
+            if region.is_mouse_over(global_mouse_pos):
+                return true
+    else:
+        return merge_controller.is_mouse_over_merge(global_mouse_pos)
+        
+    return false
+
+func get_controller():
+    return self if is_merge_controller else merge_controller
     
 
 func open_edit_menu():

@@ -1,3 +1,4 @@
+class_name Entrance
 extends Node2D
 
 signal popup_opened
@@ -51,20 +52,22 @@ func setup(from_region, to_region, from_pos, to_pos, duel_directonal):
     var midpoint: Vector2 = (from_pos + to_pos) / 2.0
     self.name_box = Rect2(midpoint - Vector2(30,20) / 2.0, Vector2(30,20))
     print(entrance_name)
+
+func is_mouse_over(global_mouse_pos: Vector2) -> bool:
+    var mouse_pos := to_local(global_mouse_pos)
+
+    if name_box.has_point(mouse_pos):
+        return true
+    #endpoint detection maybe
+    return false
     
 func _input(event: InputEvent) -> void:
     var mouse_pos := get_global_mouse_position()
-    var hovered = name_box.has_point(to_local(mouse_pos))
    
-    if Input.is_action_pressed("open_object_menu"):
-        if Input.is_key_pressed(KEY_SHIFT):
-            return
-        if hovered:
-            open_edit_menu()
-            return
     if event is InputEventMouseButton:
         if event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed:
+                dragging_endpoint = endpoints.NONE
                 var endpoint := get_endpoint_at_position(mouse_pos)
 
                 if endpoint != endpoints.NONE:
@@ -81,6 +84,8 @@ func _input(event: InputEvent) -> void:
                     get_viewport().set_input_as_handled()
                     return
             else:
+                if dragging_endpoint == endpoints.NONE:
+                    return
                 var endpoint := dragging_endpoint
                 dragging_endpoint = endpoints.NONE
 
@@ -99,11 +104,11 @@ func _input(event: InputEvent) -> void:
     if event is InputEventMouseMotion and Input.is_action_pressed("click"): 
         if dragging_endpoint != endpoints.NONE:
             if dragging_endpoint == endpoints.FROM_ENDPOINT:
-                if from_region == hovered_region:
+                if from_region.is_mouse_over_merge(mouse_pos):
                     print("test")
                     from_pos = mouse_pos
             else:
-                if to_region == hovered_region:
+                if to_region.is_mouse_over_merge(mouse_pos):
                     print("test")
                     to_pos = mouse_pos
             queue_redraw()
@@ -229,6 +234,9 @@ func draw_arrow():
 
 func set_rule_text(rule):
     self.rule_text = rule
+
+func set_entrance_name(name):
+    self.entrance_name = name
 
 func set_endpoint(endpoint, new_pos):
     if endpoint == endpoints.FROM_ENDPOINT:
