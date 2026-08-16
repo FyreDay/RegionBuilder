@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://mitf4vuurruh"]
+
+[ext_resource type="Script" uid="uid://bgrjg55ke8wjr" path="res://rules/custom_rule_creator.gd" id="1_rrcu7"]
+
+[node name="CustomRuleCreator" type="Control" unique_id=489813692]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_rrcu7")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1750567921]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxParent" type="VBoxContainer" parent="PanelContainer" unique_id=1300163359]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBoxParent" unique_id=1030384948]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxParent/VBoxContainer" unique_id=2080044017]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxParent/VBoxContainer/HBoxContainer" unique_id=1516600675]
+layout_mode = 2
+text = "Rule Name"
+
+[node name="RuleName" type="LineEdit" parent="PanelContainer/VBoxParent/VBoxContainer/HBoxContainer" unique_id=1494744777]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="PanelContainer/VBoxParent/VBoxContainer" unique_id=1649009965]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxParent/VBoxContainer/HBoxContainer2" unique_id=1600703438]
+layout_mode = 2
+text = "Class Args"
+
+[node name="Button" type="Button" parent="PanelContainer/VBoxParent/VBoxContainer/HBoxContainer2" unique_id=983280226]
+layout_mode = 2
+text = "Add"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxParent" unique_id=555791458]
+layout_mode = 2
+
+[node name="DeleteArg" type="Button" parent="PanelContainer/VBoxParent/HBoxContainer" unique_id=1047797590]
+layout_mode = 2
+text = "Delete Arg"
+
+[node name="Save" type="Button" parent="PanelContainer/VBoxParent/HBoxContainer" unique_id=362712381]
+layout_mode = 2
+
+[connection signal="pressed" from="PanelContainer/VBoxParent/VBoxContainer/HBoxContainer2/Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxParent/HBoxContainer/DeleteArg" to="." method="_on_delete_arg_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxParent/HBoxContainer/Save" to="." method="_on_save_pressed"]

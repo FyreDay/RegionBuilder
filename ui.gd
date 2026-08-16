@@ -4,15 +4,17 @@ signal map_selected(path: String)
 signal load_data
 signal save_data
 signal save_path(path: String)
+signal export_path(dir: String)
 
 @onready var file_dialog: FileDialog = $FilePngDialog
 @onready var save_file_load_dialog: FileDialog = $FileLoadDialog
 @onready var save_file_dialog: FileDialog = $SaveFileDialog
+@onready var export_dialog: FileDialog = $ExportDirDialog
 
 func _ready() -> void:
     pass
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
     pass
 
 func _on_file_dialog_file_selected(path: String) -> void:
@@ -22,7 +24,6 @@ func _on_button_pressed() -> void:
     file_dialog.popup_file_dialog()
 
 func _on_save_button_pressed() -> void:
-    print("pressed")
     save_data.emit()
 
 func _on_load_button_pressed() -> void:
@@ -34,3 +35,11 @@ func _on_file_load_dialog_file_selected(path: String) -> void:
 
 func _on_save_file_dialog_file_selected(path: String) -> void:
     save_path.emit(path)
+
+
+func _on_export_button_pressed() -> void:
+    export_dialog.popup_file_dialog()
+
+
+func _on_export_dir_dialog_dir_selected(dir: String) -> void:
+    export_path.emit(dir)

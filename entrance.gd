@@ -31,27 +31,28 @@ var updating_rule_edit: = false
 var auto_update_name:= false
 var name_box:Rect2
 var hovered_region
+var to_endpoint_offset := Vector2.ZERO
+var from_endpoint_offset := Vector2.ZERO
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
     z_index = 10
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
     pass
 
-func setup(from_region, to_region, from_pos, to_pos, duel_directonal):
-    self.from_region = from_region
-    self.to_region = to_region
-    self.from_pos = from_pos
-    self.to_pos = to_pos
-    self.duel_directonal = duel_directonal
-    self.entrance_name = from_region.region_name + "_To_" + to_region.region_name
+func setup(new_from_region, new_to_region, new_from_pos, new_to_pos, new_duel_directonal, new_name):
+    self.from_region = new_from_region
+    self.to_region = new_to_region
+    self.from_pos = new_from_pos
+    self.to_pos = new_to_pos
+    self.duel_directonal = new_duel_directonal
+    self.entrance_name = new_name
     self.rule_text = "True_()"
     show_behind_parent = true
     var midpoint: Vector2 = (from_pos + to_pos) / 2.0
     self.name_box = Rect2(midpoint - Vector2(30,20) / 2.0, Vector2(30,20))
-    print(entrance_name)
 
 func is_mouse_over(global_mouse_pos: Vector2) -> bool:
     var mouse_pos := to_local(global_mouse_pos)
@@ -105,17 +106,15 @@ func _input(event: InputEvent) -> void:
         if dragging_endpoint != endpoints.NONE:
             if dragging_endpoint == endpoints.FROM_ENDPOINT:
                 if from_region.is_mouse_over_merge(mouse_pos):
-                    print("test")
                     from_pos = mouse_pos
             else:
                 if to_region.is_mouse_over_merge(mouse_pos):
-                    print("test")
                     to_pos = mouse_pos
             queue_redraw()
             get_viewport().set_input_as_handled()
 
       
-func get_endpoint_at_position(mouse_pos: Vector2) -> int:
+func get_endpoint_at_position(mouse_pos: Vector2) -> endpoints:
     if mouse_pos.distance_to(from_pos) <= ENDPOINT_RADIUS:
         return endpoints.FROM_ENDPOINT
 
@@ -136,16 +135,16 @@ func open_edit_menu():
 
 
 func _draw() -> void:
-    draw_arrow()
-    draw_nameplate()
+    draw_arrow(to_pos + to_endpoint_offset, from_pos + from_endpoint_offset)
+    draw_nameplate(to_pos + to_endpoint_offset, from_pos + from_endpoint_offset)
     
     
-func draw_nameplate():
+func draw_nameplate(to_pos_draw: Vector2, from_pos_draw: Vector2):
     var font := ThemeDB.fallback_font
     var font_size := 16
     var padding := 6.0
 
-    var midpoint := (from_pos + to_pos) / 2.0
+    var midpoint := (from_pos_draw + to_pos_draw) / 2.0
 
     var text_size := font.get_string_size(
         entrance_name,
@@ -175,12 +174,12 @@ func draw_nameplate():
         Color.BLACK
     )
 
-func draw_arrow():
+func draw_arrow(to_pos_draw: Vector2, from_pos_draw: Vector2):
     var arrow_length := 15.0
     var arrow_width := 8.0
     
-    var start := from_pos
-    var end := to_pos
+    var start := from_pos_draw
+    var end := to_pos_draw
     
     # Direction and perpendicular
     var direction := (end - start).normalized()
@@ -235,8 +234,9 @@ func draw_arrow():
 func set_rule_text(rule):
     self.rule_text = rule
 
-func set_entrance_name(name):
-    self.entrance_name = name
+func set_entrance_name(new_name):
+    self.entrance_name = new_name
+    queue_redraw()
 
 func set_endpoint(endpoint, new_pos):
     if endpoint == endpoints.FROM_ENDPOINT:
@@ -245,7 +245,14 @@ func set_endpoint(endpoint, new_pos):
         to_pos = new_pos
     queue_redraw()
 
+func set_offset(endpoint: endpoints, offset: Vector2):
+    if endpoint == endpoints.TO_ENDPOINT:
+        to_endpoint_offset = offset
+    elif endpoint == endpoints.FROM_ENDPOINT:
+        from_endpoint_offset = offset
+    queue_redraw()
 func _on_edit_menu_popup_hide() -> void:
+    name_edit.remove_theme_stylebox_override("normal")
     popup_closed.emit()
 
 
@@ -261,5 +268,5 @@ func _on_rule_edit_text_changed() -> void:
     if not updating_rule_edit:
         rule_change_request.emit(self, rule_edit.text)
         
-func _on_hovered_region(region, merge_controller):
+func _on_hovered_region(_region, merge_controller):
     hovered_region = merge_controller

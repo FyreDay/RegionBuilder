@@ -15,12 +15,13 @@ func _ready() -> void:
     ui.save_data.connect(_on_save_data)
     ui.save_path.connect(_on_save_path)
     ui.load_data.connect(_on_load_data)
+    ui.export_path.connect(_on_export_data)
     node_manager.popup_opened.connect(map.camera.disable_input)
     node_manager.popup_closed.connect(map.camera.enable_input)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
     pass
 
 func _on_load_data(path):
@@ -131,4 +132,67 @@ func _on_save_path(path):
         zip.close()
 
     print("Saved to: ", path)
+
+func write_file(path: String, contents: String):
+    var file := FileAccess.open(path, FileAccess.WRITE)
+    if file == null:
+        push_error("Failed to write: " + path)
+        return
+
+    file.store_string(contents)
+    file.close()
+
+func _on_export_data(dir:String):
+    var save_data = node_manager.save_data()
+    write_file(
+        dir.path_join("regions.py"),
+        generate_regions_python(save_data.regions)
+    )
+
+    write_file(
+        dir.path_join("entrances.py"),
+        generate_entrances_python(save_data.entrances)
+    )
+
+func generate_regions_python(data):
+    var output := ""
+    output += "from enum import Enum\n\n"
+    output += "class Regions(Enum):\n"
+    for region in data:
+        output += '    ' + region.id + ' = ' + JSON.stringify(region.name) + '\n'
+    return output
+    
+#TODO: auto generate the rule_builder rule imports.
+#TODO: generate imports from user's rule file
+const ENTRANCES_HEADER := """\
+from enum import Enum
+
+from .regions import Regions
+from rule_builder.rules import Has, True_
+
+class EntranceTypeEnum(Enum):
+    def __init__(self, value: str, exiting_region: RegionTypeEnum, entering_region: RegionTypeEnum, direction_type: DirectionType, transition_type: TransitionType, rule):
+        # self._value_ must be set to the first element to support lookup by value
+        self._value_ = value
+        self.exiting_screen = exiting_region
+        self.entering_screen = entering_region
+        self.entrance_group = transition_type
+        self.rule = rule
+
+
+"""
+
+func generate_entrances_python(data):
+    var output := ENTRANCES_HEADER
+    output += "class Entrances(EntranceTypeEnum):"
+    for entrance in data:
+        #TODO:attach entrance group
+        output += ('    ' + entrance.id + ' = (' + JSON.stringify(entrance.name) + 
+        ', Regions.' + entrance.from_region + ', Regions.' + entrance.to_region + 
+        ', ' + '0' + ', ' + entrance.rule + ')\n')
+        if entrance.dual_directional:
+            output += ('    ' + entrance.id + '_BACK = (' + JSON.stringify(entrance.name + ' Backwards') + 
+        ', Regions.' + entrance.to_region + ', Regions.' + entrance.from_region + 
+        ', ' + '0' + ', ' + entrance.rule + ')\n')
+    return output
     

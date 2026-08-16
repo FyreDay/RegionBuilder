@@ -11,12 +11,12 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
     pass
 
-func set_map(image, name):
-    image_name = name
-    var texture := ImageTexture.create_from_image(image)
+func set_map(new_image, new_name):
+    image_name = new_name
+    var texture := ImageTexture.create_from_image(new_image)
     map_sprite.texture = texture
 
 func set_map_path(path: String) -> void:

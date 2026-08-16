@@ -8,10 +8,10 @@ signal merge_start
 signal name_change_request
 signal color_change_request
 signal drag_started
-signal drag_moved(region, delta)
+signal drag_moved(region, old_rect, delta)
 signal drag_ended
 signal resize_started
-signal resize_moved(region, delta)
+signal resize_moved(region, old_rect, new_rect)
 signal resize_ended
 
 @onready var edit_menu: PopupPanel = $EditMenu
@@ -39,11 +39,12 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
     pass
 
-func setup(rect: Rect2):
+func setup(rect: Rect2, new_name):
     node_rect = rect.abs()
+    region_name = new_name
     region_color = Color.from_hsv(randf(), 1.0, 1.0,alpha)
     show_behind_parent = true
     merge_controller = null
@@ -133,12 +134,16 @@ func _input(event: InputEvent) -> void:
     if event is InputEventMouseMotion and Input.is_action_pressed("click"): 
         if current_dragable != Dragables.NONE:
             if current_dragable == Dragables.TOP_BAR:
+                var old_pos = node_rect
                 node_rect.position = drag_old_pos + mouse_pos - drag_start_pos
+                drag_moved.emit(self, old_pos, (mouse_pos - drag_start_pos))
             elif current_dragable == Dragables.RESIZE_HANDLE:
+                var old_pos = node_rect
                 var new_size = drag_old_pos + mouse_pos - drag_start_pos
                 new_size.x = 20 if new_size.x <= 20 else new_size.x
                 new_size.y = 20 if new_size.y <= 20 else new_size.y
                 node_rect.size = new_size
+                resize_moved.emit(self, old_pos, node_rect)
             queue_redraw()
             get_viewport().set_input_as_handled()
 
@@ -151,8 +156,8 @@ func get_clickable(global_mouse_pos) -> Dragables:
         return Dragables.TOP_BAR
     return Dragables.NONE
     
-func set_rect_pos(position):
-    node_rect.position = position
+func set_rect_pos(new_position):
+    node_rect.position = new_position
     queue_redraw()
     
 func set_rect_size(size):
@@ -254,6 +259,7 @@ func remove_region_reference(region):
     
 
 func _on_edit_menu_popup_hide() -> void:
+    name_edit.remove_theme_stylebox_override("normal")
     popup_closed.emit()
 
 

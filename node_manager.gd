@@ -15,6 +15,7 @@ var isMerging = false
 var mergingRegion = null
 var hovered_region = null
 var entrance_from_region = null
+var index = 0
 
 var undo_redo := UndoRedo.new()
 # Called when the node enters the scene tree for the first time.
@@ -133,7 +134,7 @@ func _draw() -> void:
         )
     
 
-func draw_region(delta):
+func draw_region(_delta):
     if isDrawingEntrance:
         return
         
@@ -160,7 +161,14 @@ func draw_region(delta):
         
 func create_region(rect: Rect2):
     var region = region_scene.instantiate()
-    region.setup(rect)
+    
+    var name_base = 'Region'
+    var new_name = name_base
+    while not is_valid_region_name(new_name):
+        index += 1
+        new_name = name_base + ' ' + str(index)
+    
+    region.setup(rect, new_name)
     connect_region_signals(region)
     undo_redo.create_action("Create Region")
     undo_redo.add_do_method(add_child.bind(region))
@@ -176,8 +184,10 @@ func connect_region_signals(region):
     region.color_change_request.connect(_on_region_color_change_requested)
     region.drag_ended.connect(_on_region_drag_ended)
     region.resize_ended.connect(_on_region_resize_ended)
+    #region.drag_moved.connect(_on_drag_moved)
+    #region.resize_moved.connect(_on_resize_moved)
 
-func draw_entrance(delta):
+func draw_entrance(_delta):
     if isDrawingRegion:
         return
     if !isDrawingEntrance and Input.is_action_just_pressed("draw_entrance"):
@@ -205,7 +215,12 @@ func draw_entrance(delta):
         
 func create_entrance(from_region, to_region, from_pos, to_pos, dual_directional):
     var entrance = entrance_scene.instantiate()
-    entrance.setup(from_region, to_region, from_pos, to_pos, dual_directional)
+    var name_base = from_region.region_name + " To " + to_region.region_name
+    var new_name = name_base
+    while not is_valid_entrance_name(new_name):
+        index += 1
+        new_name = name_base + ' (' + str(index) + ')'
+    entrance.setup(from_region, to_region, from_pos, to_pos, dual_directional, new_name)
     connect_entrance_signals(entrance)
     undo_redo.create_action("Create Entrance")
     undo_redo.add_do_method(add_child.bind(entrance))
@@ -248,7 +263,6 @@ func _on_popup_closed() -> void:
     popup_closed.emit()
 
 func _on_delete_region(region) -> void:
-    print("delete")
     undo_redo.create_action("Delete Region")
     undo_redo.add_do_method(delete_region_and_reference.bind(region))
     undo_redo.add_undo_method(redo_region_and_reference.bind(region))
@@ -268,9 +282,27 @@ func _on_merge_start(region):
     isMerging = true
     mergingRegion = region
     
+
+func is_valid_region_name(new_name):
+    if new_name.contains('"') or new_name.contains('/') or new_name.contains('\\'):
+        return false
+    for child in get_children():
+        if child is Region:
+            if child.region_name == new_name:
+                return false
+    return true
+    
 func _on_region_name_change_requested(region, new_name):
     var old_name = region.region_name
+    if not is_valid_region_name(new_name):
+        var style = region.name_edit.get_theme_stylebox("normal").duplicate()
+        style.border_color = Color.RED
+        style.set_border_width_all(2)
 
+        region.name_edit.add_theme_stylebox_override("normal", style)
+        return
+    else:
+        region.name_edit.remove_theme_stylebox_override("normal")
     undo_redo.create_action("Change Region Name")
 
     undo_redo.add_do_method(region.set_region_name.bind(new_name))
@@ -288,7 +320,6 @@ func _on_region_color_change_requested(region, new_color, old_color):
     undo_redo.commit_action()
     
 func _on_region_drag_ended(region, old_pos, new_pos):
-    print("on drag")
     undo_redo.create_action("Drag Region")
     undo_redo.add_do_method(region.set_rect_pos.bind(new_pos))
     undo_redo.add_undo_method(region.set_rect_pos.bind(old_pos))
@@ -299,7 +330,17 @@ func _on_region_resize_ended(region, old_size, new_size):
     undo_redo.add_do_method(region.set_rect_size.bind(new_size))
     undo_redo.add_undo_method(region.set_rect_size.bind(old_size))
     undo_redo.commit_action()
-        
+    
+#func _on_drag_moved(region, old_pos, offset):
+    #for child in get_children():
+        #if child is Entrance:
+            #if child.to_region == region:
+                #if old_pos.has_point(to_local(child.to_pos)):
+                    #child.set_offset(Entrance.endpoints.TO_ENDPOINT, offset)
+            #if child.from_region == region:
+                #if old_pos.has_point(to_local(child.from_pos)):
+                    #child.set_offset(Entrance.endpoints.FROM_ENDPOINT, offset)
+            
 func _on_delete_entrance(entrance):
     
     undo_redo.create_action("Delete Entrance")
@@ -318,10 +359,27 @@ func on_endpoint_drag_end(entrance, endpoint, old_pos, new_pos):
     undo_redo.add_do_method(entrance.set_endpoint.bind(endpoint, new_pos))
     undo_redo.add_undo_method(entrance.set_endpoint.bind(endpoint, old_pos))
     undo_redo.commit_action()
+
+func is_valid_entrance_name(new_name):
+    if new_name.contains('"') or new_name.contains('/') or new_name.contains('\\'):
+        return false
+    for child in get_children():
+        if child is Entrance:
+            if child.entrance_name == new_name:
+                return false
+    return true
     
 func _on_entrance_name_change_requested(entrance, new_name):
     var old_name = entrance.entrance_name
+    if not is_valid_entrance_name(new_name):
+        var style = entrance.name_edit.get_theme_stylebox("normal").duplicate()
+        style.border_color = Color.RED
+        style.set_border_width_all(2)
 
+        entrance.name_edit.add_theme_stylebox_override("normal", style)
+        return
+    else:
+        entrance.name_edit.remove_theme_stylebox_override("normal")
     undo_redo.create_action("Change Entrance Name")
 
     undo_redo.add_do_method(entrance.set_entrance_name.bind(new_name))
@@ -329,18 +387,22 @@ func _on_entrance_name_change_requested(entrance, new_name):
 
     undo_redo.commit_action()
     
+func string_to_id(text: String) -> String:
+    # Replace spaces and hyphens with underscores
+    var sanitized = text.strip_edges().replace(" ", "_").replace("-", "_").replace("'", "")
+    # Convert the entire string to uppercase
+    return sanitized.to_upper()
+    
 func save_data():
     var data = {
         "regions": [],
         "entrances": []
     }  
     var region_ids := {}
-    var region_index := 0
 
     for child in get_children():
         if child is Region:
-            region_ids[child] = "region_" + str(region_index)
-            region_index += 1
+            region_ids[child] = string_to_id(child.region_name)
             
     for child in get_children():
         if child is Region:
@@ -381,6 +443,7 @@ func save_data():
                     child.to_pos.x,
                     child.to_pos.y
                 ],
+                "id" : string_to_id(child.entrance_name),
                 "name": child.entrance_name,
                 "rule": child.rule_text,
                 "dual_directional": child.duel_directonal

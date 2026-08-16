@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://dul0iyid6mrdt"]
 
 [ext_resource type="Script" uid="uid://dhq3kxbfkgart" path="res://ui.gd" id="1_fyqef"]
+[ext_resource type="Texture2D" uid="uid://bboquyyjxa6yl" path="res://assets/burger.png" id="2_m6e0p"]
+[ext_resource type="Texture2D" uid="uid://ohxsu3i88sia" path="res://assets/burger_click.png" id="3_nltto"]
+[ext_resource type="Texture2D" uid="uid://be045o8wfcsdp" path="res://assets/burger_highlight.png" id="4_ibotj"]
 
 [node name="UI" type="Control" unique_id=2092799128]
 layout_mode = 3
@@ -32,32 +35,52 @@ access = 2
 filters = PackedStringArray("*.zip")
 use_native_dialog = true
 
+[node name="ExportDirDialog" type="FileDialog" parent="." unique_id=1187306110]
+title = "Open a Directory"
+file_mode = 2
+access = 2
+use_native_dialog = true
+
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=712812227]
 
-[node name="Button" type="Button" parent="CanvasLayer" unique_id=1295835011]
-offset_left = 16.0
-offset_top = 9.0
-offset_right = 206.0
-offset_bottom = 125.0
+[node name="Panel" type="Panel" parent="CanvasLayer" unique_id=2119103673]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 40.0
+grow_horizontal = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Panel" unique_id=1320483242]
+layout_mode = 0
+offset_right = 414.0
+offset_bottom = 40.0
+
+[node name="SlideToggle" type="TextureButton" parent="CanvasLayer/Panel/HBoxContainer" unique_id=1164816155]
+layout_mode = 2
+texture_normal = ExtResource("2_m6e0p")
+texture_pressed = ExtResource("3_nltto")
+texture_hover = ExtResource("4_ibotj")
+
+[node name="ImageButton" type="Button" parent="CanvasLayer/Panel/HBoxContainer" unique_id=1295835011]
+layout_mode = 2
 text = "Open Map"
 
-[node name="SaveButton" type="Button" parent="CanvasLayer" unique_id=628172879]
-offset_left = 19.0
-offset_top = 169.0
-offset_right = 104.0
-offset_bottom = 200.0
+[node name="SaveButton" type="Button" parent="CanvasLayer/Panel/HBoxContainer" unique_id=628172879]
+layout_mode = 2
 text = "Save Data"
 
-[node name="LoadButton" type="Button" parent="CanvasLayer" unique_id=1841426701]
-offset_left = 20.0
-offset_top = 130.0
-offset_right = 107.0
-offset_bottom = 161.0
+[node name="LoadButton" type="Button" parent="CanvasLayer/Panel/HBoxContainer" unique_id=1841426701]
+layout_mode = 2
 text = "Load Data"
+
+[node name="ExportButton" type="Button" parent="CanvasLayer/Panel/HBoxContainer" unique_id=817138769]
+layout_mode = 2
+text = "Export To Python"
 
 [connection signal="file_selected" from="FilePngDialog" to="." method="_on_file_dialog_file_selected"]
 [connection signal="file_selected" from="FileLoadDialog" to="." method="_on_file_load_dialog_file_selected"]
 [connection signal="file_selected" from="SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]
-[connection signal="pressed" from="CanvasLayer/Button" to="." method="_on_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/SaveButton" to="." method="_on_save_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="dir_selected" from="ExportDirDialog" to="." method="_on_export_dir_dialog_dir_selected"]
+[connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/ImageButton" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/LoadButton" to="." method="_on_load_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/ExportButton" to="." method="_on_export_button_pressed"]
