@@ -11,8 +11,17 @@ signal export_path(dir: String)
 @onready var save_file_dialog: FileDialog = $SaveFileDialog
 @onready var export_dialog: FileDialog = $ExportDirDialog
 
+@onready var rule_palette: VBoxContainer = $CanvasLayer/PalettePanel/ScrollContainer/RulePaleteContainer
+@onready var drag_layer: Control = $CanvasLayer/DragLayer
+
+var dragable = preload("res://rules/Dragable_Rule.tscn")
+
 func _ready() -> void:
-    pass
+    var dragable_new = dragable.instantiate()
+    var rule_combo = RuleCombo.new()
+    rule_combo.combo_name = "This is a test Rule"
+    rule_palette.add_child(dragable_new)
+    dragable_new.setup(rule_combo,drag_layer)
 
 func _process(_delta: float) -> void:
     pass

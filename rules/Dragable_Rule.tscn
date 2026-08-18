@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bn0m5gyt46tmg"]
+
+[ext_resource type="Script" uid="uid://cvxux8r3iuo8y" path="res://rules/Dragable_Rule.gd" id="1_qckad"]
+[ext_resource type="Script" uid="uid://bolkxqr0mf7mj" path="res://rules/rule_name.gd" id="2_dnarh"]
+
+[node name="DragableRule" type="Control" unique_id=867890450]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1102.0
+offset_bottom = -628.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qckad")
+
+[node name="RuleName" type="LineEdit" parent="." unique_id=967508622]
+layout_mode = 0
+offset_right = 68.5
+offset_bottom = 31.0
+text = "TExt"
+editable = false
+selecting_enabled = false
+select_all_on_focus = true
+script = ExtResource("2_dnarh")
+
+[connection signal="focus_exited" from="RuleName" to="RuleName" method="_on_focus_exited"]
+[connection signal="mouse_entered" from="RuleName" to="RuleName" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="RuleName" to="RuleName" method="_on_mouse_exited"]
+[connection signal="text_submitted" from="RuleName" to="RuleName" method="_on_text_submitted"]

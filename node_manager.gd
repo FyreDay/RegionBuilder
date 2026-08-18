@@ -470,8 +470,7 @@ func load_data(data: Dictionary):
             )
         )
 
-        region.setup(rect)
-        region.region_name = region_data.name
+        region.setup(rect, region_data.name)
         region.region_color = Color(
             region_data.color[0],
             region_data.color[1],
@@ -527,10 +526,9 @@ func load_data(data: Dictionary):
             to_region,
             from_pos,
             to_pos,
-            entrance_data.dual_directional
+            entrance_data.dual_directional,
+            entrance_data.name
         )
-
-        entrance.entrance_name = entrance_data.name
         entrance.rule_text = entrance_data.rule
 
         connect_entrance_signals(entrance)

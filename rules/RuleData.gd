@@ -1,16 +1,16 @@
 class_name RuleData
 extends RefCounted
 
-var rule_name: String = ""
+var rule:CustomRule
 var children: Array[RuleData] = []
 var args: Dictionary = {}
 var options: Array = []
 
 func is_combinator() -> bool:
-    return rule_name == "And" or rule_name == "Or"
+    return rule.rule_name == "And" or rule.rule_name == "Or"
 
 func to_dict() -> Dictionary:
-    var d := {"rule": rule_name, "options": options}
+    var d := {"rule": rule.rule_name, "options": options}
     if is_combinator():
         var kids: Array = []
         for c in children:
