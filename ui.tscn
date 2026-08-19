@@ -4,6 +4,102 @@
 [ext_resource type="Texture2D" uid="uid://bboquyyjxa6yl" path="res://assets/burger.png" id="2_m6e0p"]
 [ext_resource type="Texture2D" uid="uid://ohxsu3i88sia" path="res://assets/burger_click.png" id="3_nltto"]
 [ext_resource type="Texture2D" uid="uid://be045o8wfcsdp" path="res://assets/burger_highlight.png" id="4_ibotj"]
+[ext_resource type="Script" uid="uid://cfvvrxs5rmoe" path="res://rules/drag_layer.gd" id="5_ibotj"]
+[ext_resource type="PackedScene" uid="uid://djqt413xwjalu" path="res://rules/dragable_custom_rule.tscn" id="5_n5ude"]
+[ext_resource type="PackedScene" uid="uid://76e4l1hexqkq" path="res://rules/rule_spot.tscn" id="5_ok7cu"]
+[ext_resource type="Script" uid="uid://qimhwmqrpvh3" path="res://rules/resources/custom_rule_arg_definition.gd" id="6_waa4j"]
+[ext_resource type="Script" uid="uid://hpud8oi5gfh1" path="res://rules/resources/custom_rule_definition.gd" id="7_ok7cu"]
+
+[sub_resource type="Resource" id="Resource_cxd00"]
+script = ExtResource("6_waa4j")
+arg_name = "children"
+arg_type = 5
+default_value = []
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_gs482"]
+script = ExtResource("7_ok7cu")
+rule_name = "And"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_cxd00")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
+
+[sub_resource type="Resource" id="Resource_etlur"]
+script = ExtResource("6_waa4j")
+arg_name = "children"
+arg_type = 5
+default_value = []
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_7rqds"]
+script = ExtResource("7_ok7cu")
+rule_name = "Or"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_etlur")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
+
+[sub_resource type="Resource" id="Resource_nvb2n"]
+script = ExtResource("6_waa4j")
+arg_name = "children"
+arg_type = 5
+default_value = []
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_os5c7"]
+script = ExtResource("6_waa4j")
+arg_name = "count"
+arg_type = 1
+default_value = 0
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_b2p7n"]
+script = ExtResource("7_ok7cu")
+rule_name = "AtLeast"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_nvb2n"), SubResource("Resource_os5c7")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
+
+[sub_resource type="Resource" id="Resource_waa4j"]
+script = ExtResource("6_waa4j")
+arg_name = "item_name"
+default_value = ""
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_ok7cu"]
+script = ExtResource("6_waa4j")
+arg_name = "count"
+arg_type = 1
+default_value = 1.0
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_irxef"]
+script = ExtResource("7_ok7cu")
+rule_name = "Has"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_waa4j"), SubResource("Resource_ok7cu")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
+
+[sub_resource type="Resource" id="Resource_e2l4f"]
+script = ExtResource("6_waa4j")
+arg_name = "item_names"
+arg_type = 4
+default_value = []
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_n5rqp"]
+script = ExtResource("7_ok7cu")
+rule_name = "HasAll"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_e2l4f")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
+
+[sub_resource type="Resource" id="Resource_vkygq"]
+script = ExtResource("6_waa4j")
+arg_name = "item_names"
+arg_type = 4
+default_value = []
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_sosvr"]
+script = ExtResource("7_ok7cu")
+rule_name = "HasAny"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_vkygq")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
 
 [node name="UI" type="Control" unique_id=2092799128]
 layout_mode = 3
@@ -46,7 +142,7 @@ use_native_dialog = true
 [node name="Panel" type="Panel" parent="CanvasLayer" unique_id=2119103673]
 anchors_preset = -1
 anchor_right = 1.0
-anchor_bottom = 0.06
+anchor_bottom = 0.065
 grow_horizontal = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Panel" unique_id=1320483242]
@@ -56,6 +152,7 @@ offset_bottom = 40.0
 
 [node name="SlideToggle" type="TextureButton" parent="CanvasLayer/Panel/HBoxContainer" unique_id=1164816155]
 layout_mode = 2
+toggle_mode = true
 texture_normal = ExtResource("2_m6e0p")
 texture_pressed = ExtResource("3_nltto")
 texture_hover = ExtResource("4_ibotj")
@@ -78,14 +175,33 @@ text = "Export To Python"
 
 [node name="PalettePanel" type="Panel" parent="CanvasLayer" unique_id=921427904]
 anchors_preset = -1
-anchor_top = 0.06
+anchor_top = 0.065
 anchor_right = 0.2
 anchor_bottom = 1.0
 grow_vertical = 2
 
+[node name="Title" type="HBoxContainer" parent="CanvasLayer/PalettePanel" unique_id=62405444]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.05
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/PalettePanel/Title" unique_id=308728684]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rule Palette"
+horizontal_alignment = 1
+
+[node name="RuleBuilderToggle" type="Button" parent="CanvasLayer/PalettePanel/Title" unique_id=599292758]
+layout_mode = 2
+toggle_mode = true
+text = "Edit"
+
 [node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/PalettePanel" unique_id=379068410]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = -1
+anchor_top = 0.05
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -94,39 +210,129 @@ horizontal_scroll_mode = 0
 
 [node name="RulePaleteContainer" type="VBoxContainer" parent="CanvasLayer/PalettePanel/ScrollContainer" unique_id=806044165]
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="Button" type="Button" parent="CanvasLayer/PalettePanel" unique_id=599292758]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -38.000015
-offset_top = -31.0
-grow_horizontal = 0
-grow_vertical = 0
-text = "Edit"
-
-[node name="RuleBuilderPanel" type="Panel" parent="CanvasLayer" unique_id=585999069]
-visible = false
+[node name="RuleEditor" type="Panel" parent="CanvasLayer" unique_id=1172573824]
 anchors_preset = -1
 anchor_left = 0.2
-anchor_top = 0.06
-anchor_right = 0.8
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SingleRulePanel" type="Panel" parent="CanvasLayer" unique_id=70361470]
-visible = false
-anchors_preset = -1
-anchor_left = 0.8
-anchor_top = 0.06
+anchor_top = 0.065
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="RuleBuilderPanel" type="Panel" parent="CanvasLayer/RuleEditor" unique_id=585999069]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.75
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="HBoxContainer" parent="CanvasLayer/RuleEditor/RuleBuilderPanel" unique_id=1471266599]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.05
+offset_bottom = 0.7059994
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/RuleEditor/RuleBuilderPanel/Title" unique_id=1543916198]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rule Builder"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/RuleEditor/RuleBuilderPanel" unique_id=1523778064]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.05
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="VBoxContainer" parent="CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer" unique_id=309193313]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer/HBoxContainer" unique_id=564092290]
+layout_mode = 2
+text = "Root Rule"
+
+[node name="RuleSpot" parent="CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer/HBoxContainer" unique_id=489241536 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_ok7cu")]
+layout_mode = 2
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="RulePartPanel" type="Panel" parent="CanvasLayer/RuleEditor" unique_id=70361470]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.75
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="HBoxContainer" parent="CanvasLayer/RuleEditor/RulePartPanel" unique_id=1078086631]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.05
+offset_bottom = -0.0651207
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/RuleEditor/RulePartPanel/Title" unique_id=1311620262]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rule parts"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="CanvasLayer/RuleEditor/RulePartPanel/Title" unique_id=1935366952]
+layout_mode = 2
+text = "Add Custom"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/RuleEditor/RulePartPanel" unique_id=337304376]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.05
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="RuleContainer" type="VBoxContainer" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer" unique_id=538266127]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="And" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=448951901 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_gs482")
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="Or" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1613553669 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_7rqds")
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="AtLeast" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1757446067 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_b2p7n")
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="Has" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1548108619 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_irxef")
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="HasAll" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=2100617693 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_n5rqp")
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="HasAny" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1702151136 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_sosvr")
+drag_layer = NodePath("../../../../../DragLayer")
 
 [node name="DragLayer" type="Control" parent="CanvasLayer" unique_id=1457058640]
 layout_mode = 3
@@ -136,12 +342,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("5_ibotj")
 
 [connection signal="file_selected" from="FilePngDialog" to="." method="_on_file_dialog_file_selected"]
 [connection signal="file_selected" from="FileLoadDialog" to="." method="_on_file_load_dialog_file_selected"]
 [connection signal="file_selected" from="SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]
 [connection signal="dir_selected" from="ExportDirDialog" to="." method="_on_export_dir_dialog_dir_selected"]
+[connection signal="toggled" from="CanvasLayer/Panel/HBoxContainer/SlideToggle" to="." method="_on_slide_toggle_toggled"]
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/ImageButton" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/SaveButton" to="." method="_on_save_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/ExportButton" to="." method="_on_export_button_pressed"]
+[connection signal="toggled" from="CanvasLayer/PalettePanel/Title/RuleBuilderToggle" to="." method="_on_rule_builder_toggled"]

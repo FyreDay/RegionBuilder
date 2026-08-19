@@ -1,6 +1,6 @@
 extends Control
 
-
+@onready var name_ref: LineEdit = $NameRef
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
     pass # Replace with function body.
@@ -8,34 +8,23 @@ func _ready() -> void:
 var dragging:bool
 var rule_combo:RuleCombo
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-    print("process")
+func _process(_delta: float) -> void:
     if not dragging:
         return
-    print("dragging")
     position = get_parent().get_local_mouse_position()
     queue_redraw()
 
     if not Input.is_action_pressed("click"):
+        var drag_layer = get_parent() as DragLayer
+        if drag_layer.hovered_entrance == null:
+            queue_free()
+            return
+        drag_layer.hovered_entrance.set_rule(rule_combo)
         dragging = false
+        queue_free()
+        
 
 func setup(new_rule_combo:RuleCombo, is_dragging):
-    print("create")
     rule_combo = new_rule_combo
     dragging = is_dragging
-#
-func _on_name_ref_gui_input(event: InputEvent) -> void:
-    pass
-    #if dragging:
-        #print("dragging")
-        #if event is InputEventMouseButton:
-            #if event.button_index == MOUSE_BUTTON_LEFT:
-                #if not event.pressed:
-                    #dragging = false
-                    #return
-                    #
-        #if event is InputEventMouseMotion and Input.is_action_pressed("click"): 
-                #var mouse_pos := get_global_mouse_position()
-                #position = mouse_pos
-                #queue_redraw()
-                #get_viewport().set_input_as_handled()
+    name_ref.text = rule_combo.combo_name

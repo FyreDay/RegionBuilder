@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://b2p72k1q1hbd6"]
+
+[ext_resource type="Script" uid="uid://djh5ousj1wlk0" path="res://rules/dragable_rule_data.gd" id="1_pse4b"]
+
+[node name="DragableCustomRuleRef" type="VBoxContainer" unique_id=1437571394]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_pse4b")
+
+[node name="Rule" type="HBoxContainer" parent="." unique_id=1014868555]
+layout_mode = 2
+
+[node name="NameRef" type="LineEdit" parent="Rule" unique_id=1303274341]
+layout_mode = 2
+editable = false
+expand_to_text_length = true
+emoji_menu_enabled = false
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+
+[node name="Args" type="HBoxContainer" parent="Rule" unique_id=127391774]
+layout_mode = 2
+
+[node name="RuleChildren" type="VBoxContainer" parent="." unique_id=2139319370]
+layout_mode = 2

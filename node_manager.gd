@@ -3,6 +3,7 @@ extends Node2D
 signal popup_opened
 signal popup_closed
 signal hovered_region_update
+signal hovered_entrance_update
 signal save_data_ready
 
 var region_scene = preload("res://region.tscn")
@@ -42,8 +43,12 @@ func get_hovered_object():
     if result != null and result.has_method("get_controller"):
         hovered_region = result.get_controller()
         hovered_region_update.emit(result, hovered_region)
+        hovered_entrance_update.emit(null)
+    elif result != null and result is Entrance:
+        hovered_entrance_update.emit(result)
     else:
         hovered_region = null
+        hovered_entrance_update.emit(null)
         hovered_region_update.emit(null, null)
     return result
 
@@ -231,7 +236,6 @@ func connect_entrance_signals(entrance):
     entrance.popup_opened.connect(_on_popup_opened)
     entrance.popup_closed.connect(_on_popup_closed)
     entrance.delete_entrance.connect(_on_delete_entrance)
-    entrance.rule_change_request.connect(_on_rule_change)
     entrance.name_change_request.connect(_on_entrance_name_change_requested)
     entrance.endpoint_drag_ended.connect(on_endpoint_drag_end)
     hovered_region_update.connect(entrance._on_hovered_region)
@@ -346,12 +350,6 @@ func _on_delete_entrance(entrance):
     undo_redo.create_action("Delete Entrance")
     undo_redo.add_do_method(remove_child.bind(entrance))
     undo_redo.add_undo_method(add_child.bind(entrance))
-    undo_redo.commit_action()
-    
-func _on_rule_change(entrance, rule_text):
-    undo_redo.create_action("Change Rule")
-    undo_redo.add_do_method(entrance.set_rule_text.bind(rule_text))
-    undo_redo.add_undo_method(entrance.set_rule_text.bind(entrance.rule_text))
     undo_redo.commit_action()
     
 func on_endpoint_drag_end(entrance, endpoint, old_pos, new_pos):

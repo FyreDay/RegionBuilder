@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://mitf4vuurruh"]
 
-[ext_resource type="Script" uid="uid://bgrjg55ke8wjr" path="res://rules/custom_rule_creator.gd" id="1_rrcu7"]
+[ext_resource type="Script" uid="uid://bgrjg55ke8wjr" path="res://rules/menus/custom_rule_creator.gd" id="1_rrcu7"]
 
 [node name="CustomRuleCreator" type="Control" unique_id=489813692]
 layout_mode = 3

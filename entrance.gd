@@ -5,13 +5,13 @@ signal popup_opened
 signal popup_closed
 signal delete_entrance
 signal name_change_request
-signal rule_change_request(entrance, rule)
 signal endpoint_drag_started(entrance, endpoint)
 signal endpoint_drag_ended(entrance, endpoint, old_pos, new_pos)
 
 @onready var edit_menu: PopupPanel = $EditMenu
 @onready var name_edit: LineEdit = $EditMenu/VBoxContainer/NameEdit
-@onready var rule_edit: TextEdit = $EditMenu/VBoxContainer/RuleEdit
+@onready var rule_name: LineEdit = $EditMenu/VBoxContainer/RuleContainer/LineEdit
+@onready var rule_plate: LineEdit = $RulePlate
 
 enum endpoints { FROM_ENDPOINT, TO_ENDPOINT, NONE}
 const ENDPOINT_RADIUS := 20.0
@@ -26,16 +26,18 @@ var duel_directonal = false
 var from_region
 var to_region
 var entrance_name
-var rule_text
 var updating_rule_edit: = false
 var auto_update_name:= false
 var name_box:Rect2
 var hovered_region
 var to_endpoint_offset := Vector2.ZERO
 var from_endpoint_offset := Vector2.ZERO
+var rule_combo:RuleCombo
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
     z_index = 10
+    rule_plate.hide()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -49,10 +51,10 @@ func setup(new_from_region, new_to_region, new_from_pos, new_to_pos, new_duel_di
     self.to_pos = new_to_pos
     self.duel_directonal = new_duel_directonal
     self.entrance_name = new_name
-    self.rule_text = "True_()"
     show_behind_parent = true
     var midpoint: Vector2 = (from_pos + to_pos) / 2.0
     self.name_box = Rect2(midpoint - Vector2(30,20) / 2.0, Vector2(30,20))
+        
 
 func is_mouse_over(global_mouse_pos: Vector2) -> bool:
     var mouse_pos := to_local(global_mouse_pos)
@@ -127,7 +129,6 @@ func open_edit_menu():
     popup_opened.emit()
     name_edit.text = entrance_name
     updating_rule_edit = true
-    rule_edit.text = rule_text
     updating_rule_edit = false
     edit_menu.position = get_viewport().get_mouse_position()
     edit_menu.reset_size()
@@ -137,7 +138,10 @@ func open_edit_menu():
 func _draw() -> void:
     draw_arrow(to_pos + to_endpoint_offset, from_pos + from_endpoint_offset)
     draw_nameplate(to_pos + to_endpoint_offset, from_pos + from_endpoint_offset)
-    
+    update_rule_plate()
+
+func update_rule_plate():
+    rule_plate.position = Vector2(name_box.position.x + (name_box.size.x/2) - rule_plate.size.x/2, name_box.position.y + name_box.size.y)
     
 func draw_nameplate(to_pos_draw: Vector2, from_pos_draw: Vector2):
     var font := ThemeDB.fallback_font
@@ -194,8 +198,8 @@ func draw_arrow(to_pos_draw: Vector2, from_pos_draw: Vector2):
     if duel_directonal:
         draw_colored_polygon(
             PackedVector2Array([
-                start + 2 * direction - direction * arrow_length, 
-                start + 2 * direction + perpendicular * arrow_width, 
+                start + 2 * direction - direction * arrow_length,
+                start + 2 * direction + perpendicular * arrow_width,
                 start + 2 * direction - perpendicular * arrow_width
             ]),
             Color.BLACK
@@ -231,12 +235,30 @@ func draw_arrow(to_pos_draw: Vector2, from_pos_draw: Vector2):
         Color.WHITE
     )
 
-func set_rule_text(rule):
-    self.rule_text = rule
-
 func set_entrance_name(new_name):
     self.entrance_name = new_name
     queue_redraw()
+
+func set_rule(new_rule_combo:RuleCombo):
+    rule_combo = new_rule_combo
+    if rule_combo:
+        if rule_combo.changed.is_connected(_on_rule_combo_changed):
+            rule_combo.changed.disconnect(_on_rule_combo_changed)
+        rule_name.text = rule_combo.combo_name
+        rule_plate.text = rule_combo.combo_name
+        rule_plate.show()
+        rule_combo.changed.connect(_on_rule_combo_changed)  
+    else:
+        rule_name.text = ""
+        rule_plate.text = ""
+        rule_plate.hide()
+    queue_redraw()
+
+func _on_rule_combo_changed():
+    rule_name.text = rule_combo.combo_name
+    rule_plate.text = rule_combo.combo_name
+    queue_redraw()
+    
 
 func set_endpoint(endpoint, new_pos):
     if endpoint == endpoints.FROM_ENDPOINT:
@@ -262,11 +284,9 @@ func _on_name_edit_text_changed(new_text: String) -> void:
 
 func _on_delete_button_pressed() -> void:
     delete_entrance.emit(self)
-
-
-func _on_rule_edit_text_changed() -> void:
-    if not updating_rule_edit:
-        rule_change_request.emit(self, rule_edit.text)
         
 func _on_hovered_region(_region, merge_controller):
     hovered_region = merge_controller
+
+func _on_delete_rule_pressed() -> void:
+    set_rule(null)

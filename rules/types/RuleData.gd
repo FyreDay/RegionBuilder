@@ -6,12 +6,9 @@ var children: Array[RuleData] = []
 var args: Dictionary = {}
 var options: Array = []
 
-func is_combinator() -> bool:
-    return rule.rule_name == "And" or rule.rule_name == "Or"
-
 func to_dict() -> Dictionary:
     var d := {"rule": rule.rule_name, "options": options}
-    if is_combinator():
+    if rule.is_combinator:
         var kids: Array = []
         for c in children:
             kids.append(c.to_dict())

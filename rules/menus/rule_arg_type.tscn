@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://do56cyjkrti06"]
 
-[ext_resource type="Script" uid="uid://b60yy8ienyqwb" path="res://rules/rule_arg_type.gd" id="1_hgt43"]
+[ext_resource type="Script" uid="uid://b60yy8ienyqwb" path="res://rules/menus/rule_arg_type.gd" id="1_hgt43"]
 
 [node name="RuleArgType" type="Control" unique_id=1738170653]
 layout_mode = 3

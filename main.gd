@@ -1,7 +1,7 @@
 extends Node2D
 
 @onready var map = $Map
-@onready var ui = $UI
+@onready var ui:LogicUI = $UI
 @onready var node_manager = $NodeManager
 
 var pending_json: String
@@ -18,6 +18,7 @@ func _ready() -> void:
     ui.export_path.connect(_on_export_data)
     node_manager.popup_opened.connect(map.camera.disable_input)
     node_manager.popup_closed.connect(map.camera.enable_input)
+    node_manager.hovered_entrance_update.connect(ui.update_entrance)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

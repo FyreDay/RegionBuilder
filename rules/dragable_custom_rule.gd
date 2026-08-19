@@ -1,7 +1,8 @@
-class_name DragableRuleNameEdit
+class_name DragableCustomRule
 extends LineEdit
 
-var dragable_ref = preload("res://rules/dragable_rule_ref.tscn")
+var dragable_ref = preload("res://rules/dragable_rule_data.tscn")
+
 var mouse_over = false
 var click_count = 0
 var elapsed_time = 0
@@ -10,11 +11,12 @@ const dragtime = .3
 var drag_timer = 0
 
 var drag_start_pos:= Vector2.ZERO
-var rule_combo:RuleCombo
-var drag_layer:Control
+@export var custom_rule_def: CustomRuleDefinition
+var custom_rule:CustomRule
+@export var drag_layer:Control
 
 func _ready() -> void:
-    pass
+    set_rule(custom_rule_def.get_data())
 
 func _process(delta: float) -> void:
     if click_count > 0:
@@ -32,25 +34,31 @@ func _process(delta: float) -> void:
         if drag_timer >= dragtime:
             var drag_ref = dragable_ref.instantiate()
             drag_layer.add_child(drag_ref)
-            drag_ref.setup(rule_combo, true)
+            drag_ref.setup(custom_rule, true)
             drag_timer = 0
             dragging = false
     
 
-func setup(new_rule_combo:RuleCombo, new_drag_layer:Control):
-    rule_combo = new_rule_combo
+func setup(new_custom_rule:CustomRule, new_drag_layer:Control):
+    set_rule(new_custom_rule)
     drag_layer = new_drag_layer
-    text = rule_combo.combo_name
+    
 
+func set_rule(new_custom_rule:CustomRule):
+    if new_custom_rule:
+        custom_rule = new_custom_rule
+        text = custom_rule.rule_name
+    else:
+        queue_free()
 
 func _gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton:
         if event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed:
                 dragging = true
-            elif mouse_over:
-                click_count += 1
+            elif mouse_over and custom_rule.editable:
                 print("click")
+                click_count += 1
                 
     if event is InputEventMouseMotion:
         if not(dragging and Input.is_action_pressed("click")):
@@ -68,7 +76,7 @@ func _on_mouse_exited() -> void:
     if dragging:
         var drag_ref = dragable_ref.instantiate()
         drag_layer.add_child(drag_ref)
-        drag_ref.setup(rule_combo, true)
+        drag_ref.setup(custom_rule, true)
         drag_timer = 0
         dragging = false
 
@@ -79,7 +87,7 @@ func _on_focus_exited() -> void:
 
 func _on_text_submitted(new_text: String) -> void:
     
-    rule_combo.set_combo_name(new_text)
+    custom_rule.set_combo_name(new_text)
     selecting_enabled = false
     editable = false
     release_focus()

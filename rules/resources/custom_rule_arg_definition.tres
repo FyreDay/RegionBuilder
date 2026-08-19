@@ -1,0 +1,14 @@
+[gd_resource type="Resource" format=3 uid="uid://r282gs321nol"]
+
+[sub_resource type="GDScript" id="GDScript_qbqmh"]
+script/source = "class_name CustomRuleArgumentDefinition
+extends Resource
+
+@export var arg_name: String
+@export var arg_type: RuleArgType
+"
+
+[resource]
+script = SubResource("GDScript_qbqmh")
+rule_name = null
+arg_name_to_type = null

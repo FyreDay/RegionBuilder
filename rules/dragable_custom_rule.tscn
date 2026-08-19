@@ -1,23 +1,18 @@
-[gd_scene format=3 uid="uid://bn0m5gyt46tmg"]
+[gd_scene format=3 uid="uid://djqt413xwjalu"]
 
-[ext_resource type="Script" uid="uid://cvxux8r3iuo8y" path="res://rules/Dragable_Rule.gd" id="1_qckad"]
+[ext_resource type="Script" uid="uid://2f23pl8k8l1v" path="res://rules/dragable_custom_rule.gd" id="1_71xj2"]
 
-[node name="DragableRule" type="LineEdit" unique_id=1917340727]
+[node name="DragableCustomRule" type="LineEdit" unique_id=448951901]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -9.25
-offset_top = -5.5
-offset_right = -1092.75
-offset_bottom = -622.5
 grow_horizontal = 2
 grow_vertical = 2
 editable = false
-expand_to_text_length = true
+context_menu_enabled = false
 emoji_menu_enabled = false
 selecting_enabled = false
-select_all_on_focus = true
-script = ExtResource("1_qckad")
+script = ExtResource("1_71xj2")
 
 [connection signal="focus_exited" from="." to="." method="_on_focus_exited"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
