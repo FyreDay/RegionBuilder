@@ -3,9 +3,10 @@
 [ext_resource type="Script" uid="uid://djh5ousj1wlk0" path="res://rules/dragable_rule_data.gd" id="1_pse4b"]
 
 [node name="DragableCustomRuleRef" type="VBoxContainer" unique_id=1437571394]
-anchors_preset = 15
+anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 200.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_pse4b")
@@ -24,5 +25,23 @@ selecting_enabled = false
 [node name="Args" type="HBoxContainer" parent="Rule" unique_id=127391774]
 layout_mode = 2
 
-[node name="RuleChildren" type="VBoxContainer" parent="." unique_id=2139319370]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1279403203]
 layout_mode = 2
+theme_override_constants/margin_left = 30
+
+[node name="RuleChildren" type="VBoxContainer" parent="MarginContainer" unique_id=2139319370]
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="MarginContainer/RuleChildren" unique_id=68021967]
+layout_mode = 2
+
+[node name="Add" type="Button" parent="MarginContainer/RuleChildren/Buttons" unique_id=1738204964]
+layout_mode = 2
+text = "Add"
+
+[node name="Remove" type="Button" parent="MarginContainer/RuleChildren/Buttons" unique_id=226466045]
+layout_mode = 2
+text = "Remove"
+
+[connection signal="pressed" from="MarginContainer/RuleChildren/Buttons/Add" to="." method="_on_add_pressed"]
+[connection signal="pressed" from="MarginContainer/RuleChildren/Buttons/Remove" to="." method="_on_remove_pressed"]

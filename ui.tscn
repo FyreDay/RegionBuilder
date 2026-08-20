@@ -10,38 +10,17 @@
 [ext_resource type="Script" uid="uid://qimhwmqrpvh3" path="res://rules/resources/custom_rule_arg_definition.gd" id="6_waa4j"]
 [ext_resource type="Script" uid="uid://hpud8oi5gfh1" path="res://rules/resources/custom_rule_definition.gd" id="7_ok7cu"]
 
-[sub_resource type="Resource" id="Resource_cxd00"]
-script = ExtResource("6_waa4j")
-arg_name = "children"
-arg_type = 5
-default_value = []
-metadata/_custom_type_script = "uid://qimhwmqrpvh3"
-
 [sub_resource type="Resource" id="Resource_gs482"]
 script = ExtResource("7_ok7cu")
 rule_name = "And"
-arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_cxd00")])
+is_combinator = true
 metadata/_custom_type_script = "uid://hpud8oi5gfh1"
-
-[sub_resource type="Resource" id="Resource_etlur"]
-script = ExtResource("6_waa4j")
-arg_name = "children"
-arg_type = 5
-default_value = []
-metadata/_custom_type_script = "uid://qimhwmqrpvh3"
 
 [sub_resource type="Resource" id="Resource_7rqds"]
 script = ExtResource("7_ok7cu")
 rule_name = "Or"
-arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_etlur")])
+is_combinator = true
 metadata/_custom_type_script = "uid://hpud8oi5gfh1"
-
-[sub_resource type="Resource" id="Resource_nvb2n"]
-script = ExtResource("6_waa4j")
-arg_name = "children"
-arg_type = 5
-default_value = []
-metadata/_custom_type_script = "uid://qimhwmqrpvh3"
 
 [sub_resource type="Resource" id="Resource_os5c7"]
 script = ExtResource("6_waa4j")
@@ -53,7 +32,8 @@ metadata/_custom_type_script = "uid://qimhwmqrpvh3"
 [sub_resource type="Resource" id="Resource_b2p7n"]
 script = ExtResource("7_ok7cu")
 rule_name = "AtLeast"
-arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_nvb2n"), SubResource("Resource_os5c7")])
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_os5c7")])
+is_combinator = true
 metadata/_custom_type_script = "uid://hpud8oi5gfh1"
 
 [sub_resource type="Resource" id="Resource_waa4j"]
@@ -212,6 +192,10 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_vertical = 3
 
+[node name="New" type="Button" parent="CanvasLayer/PalettePanel/ScrollContainer/RulePaleteContainer" unique_id=1446262195]
+layout_mode = 2
+text = "New"
+
 [node name="RuleEditor" type="Panel" parent="CanvasLayer" unique_id=1172573824]
 anchors_preset = -1
 anchor_left = 0.2
@@ -255,7 +239,7 @@ grow_vertical = 2
 [node name="HBoxContainer" type="VBoxContainer" parent="CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer" unique_id=309193313]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer/HBoxContainer" unique_id=564092290]
+[node name="RootRuleLabel" type="Label" parent="CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer/HBoxContainer" unique_id=564092290]
 layout_mode = 2
 text = "Root Rule"
 
@@ -344,6 +328,9 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("5_ibotj")
 
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="CanvasLayer/DragLayer" unique_id=894915938]
+title = "Are You Sure?"
+
 [connection signal="file_selected" from="FilePngDialog" to="." method="_on_file_dialog_file_selected"]
 [connection signal="file_selected" from="FileLoadDialog" to="." method="_on_file_load_dialog_file_selected"]
 [connection signal="file_selected" from="SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]
@@ -354,3 +341,6 @@ script = ExtResource("5_ibotj")
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/ExportButton" to="." method="_on_export_button_pressed"]
 [connection signal="toggled" from="CanvasLayer/PalettePanel/Title/RuleBuilderToggle" to="." method="_on_rule_builder_toggled"]
+[connection signal="pressed" from="CanvasLayer/PalettePanel/ScrollContainer/RulePaleteContainer/New" to="." method="_on_new_pressed"]
+[connection signal="canceled" from="CanvasLayer/DragLayer/ConfirmationDialog" to="CanvasLayer/DragLayer" method="_on_confirmation_dialog_canceled"]
+[connection signal="confirmed" from="CanvasLayer/DragLayer/ConfirmationDialog" to="CanvasLayer/DragLayer" method="_on_confirmation_dialog_confirmed"]

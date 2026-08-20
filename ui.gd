@@ -6,6 +6,7 @@ signal load_data
 signal save_data
 signal save_path(path: String)
 signal export_path(dir: String)
+signal rule_builder_toggled(bool)
 
 @onready var file_dialog: FileDialog = $FilePngDialog
 @onready var save_file_load_dialog: FileDialog = $FileLoadDialog
@@ -19,18 +20,18 @@ signal export_path(dir: String)
 @onready var rule_editor_panel: Panel = $CanvasLayer/RuleEditor
 @onready var rule_palette: VBoxContainer = $CanvasLayer/PalettePanel/ScrollContainer/RulePaleteContainer
 @onready var drag_layer: DragLayer = $CanvasLayer/DragLayer
+@onready var new_rule_combo_button: Button = $CanvasLayer/PalettePanel/ScrollContainer/RulePaleteContainer/New
+@onready var root_rule_spot: RuleSpot = $CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer/HBoxContainer/RuleSpot
+@onready var root_rule_label: Label = $CanvasLayer/RuleEditor/RuleBuilderPanel/ScrollContainer/HBoxContainer/RootRuleLabel
 
 var dragable = preload("res://rules/Dragable_Rule.tscn")
 
 var palette_open = false
 var rule_builder_open = false
+var selected_dragable_rule_combo:DragableRuleNameEdit
 
 func _ready() -> void:
-    var dragable_new = dragable.instantiate()
-    var rule_combo = RuleCombo.new()
-    rule_combo.combo_name = "This is a test Rule"
-    rule_palette.add_child(dragable_new)
-    dragable_new.setup(rule_combo,drag_layer)
+    pass
 
 func _process(delta: float) -> void:
     slide_panel(delta)
@@ -81,9 +82,42 @@ func _on_slide_toggle_toggled(toggled_on: bool) -> void:
     palette_open = toggled_on
     if not palette_open:
         rule_builder_open = false
-    
+        selected_dragable_rule_combo = null
+        root_rule_spot.hide()
+        root_rule_label.text = "Select a rule from the palette"
+        queue_redraw()
+        
 func update_entrance(entrance:Entrance):
     drag_layer.update_entrance(entrance)
 
 func _on_rule_builder_toggled(toggled_on: bool) -> void:
     rule_builder_open = toggled_on
+    rule_builder_toggled.emit(toggled_on)
+    if not toggled_on:
+        selected_dragable_rule_combo = null
+        root_rule_spot.hide()
+        root_rule_label.text = "Select a rule from the palette"
+        queue_redraw()
+
+
+func _on_new_pressed() -> void:
+    var dragable_new = dragable.instantiate()
+    var rule_combo = RuleCombo.new()
+    rule_combo.combo_name = "Rule " + str(rule_palette.get_child_count())
+    rule_palette.add_child(dragable_new)
+    dragable_new.setup(rule_combo,drag_layer)
+    dragable_new.selected.connect(_on_rule_combo_selected)
+    rule_builder_toggled.connect(dragable_new.on_rule_builder_state)
+    rule_palette.move_child(new_rule_combo_button, rule_palette.get_child_count() - 1)
+    
+func _on_rule_combo_selected(selected_rule_combo:DragableRuleNameEdit):
+    if selected_dragable_rule_combo and root_rule_spot.new_root.is_connected(selected_dragable_rule_combo.update_rule_data):
+        root_rule_spot.new_root.disconnect(selected_dragable_rule_combo.update_rule_data)
+    if selected_rule_combo:
+        root_rule_label.show()
+        root_rule_label.text = "Root Rule"
+    print("Selected " + selected_rule_combo.rule_combo.combo_name)
+    selected_dragable_rule_combo = selected_rule_combo
+    root_rule_spot.from_rule_data(selected_dragable_rule_combo.rule_combo.root)
+    root_rule_spot.new_root.connect(selected_dragable_rule_combo.update_rule_data)
+    queue_redraw()

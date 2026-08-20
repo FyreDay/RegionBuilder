@@ -1,6 +1,8 @@
 class_name DragableRuleNameEdit
 extends LineEdit
 
+signal selected(DragableRuleNameEdit)
+
 var dragable_ref = preload("res://rules/dragable_rule_ref.tscn")
 var mouse_over = false
 var click_count = 0
@@ -12,11 +14,15 @@ var drag_timer = 0
 var drag_start_pos:= Vector2.ZERO
 var rule_combo:RuleCombo
 var drag_layer:Control
+var rule_mode := false
 
 func _ready() -> void:
     pass
 
 func _process(delta: float) -> void:
+    #if Input.is_action_just_pressed("Exit") and has_focus():
+        #
+        
     if click_count > 0:
         elapsed_time+=delta
         if click_count >= 2:
@@ -45,12 +51,19 @@ func setup(new_rule_combo:RuleCombo, new_drag_layer:Control):
 
 func _gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton:
+        print("input")
+        print(rule_mode)
         if event.button_index == MOUSE_BUTTON_LEFT:
             if event.pressed:
+                if rule_mode:
+                    selected.emit(self)
                 dragging = true
             elif mouse_over:
                 click_count += 1
-                print("click")
+        if event.button_index == MOUSE_BUTTON_RIGHT:
+            if event.pressed:
+                print(str(rule_combo.root.to_dict()))
+                
                 
     if event is InputEventMouseMotion:
         if not(dragging and Input.is_action_pressed("click")):
@@ -83,3 +96,13 @@ func _on_text_submitted(new_text: String) -> void:
     selecting_enabled = false
     editable = false
     release_focus()
+
+func update_rule_combo(new_rule_combo:RuleCombo):
+    rule_combo = new_rule_combo
+
+func update_rule_data(new_rule_data:RuleData):
+    rule_combo.root = new_rule_data
+    
+func on_rule_builder_state(open:bool):
+    rule_mode = open
+    
