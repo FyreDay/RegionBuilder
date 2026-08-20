@@ -42,15 +42,15 @@ func to_dict() -> Dictionary:
         d["args"] = args
     return d
 
-static func from_dict(data: Dictionary) -> RuleData:
+static func from_dict(data: Dictionary, rule_manager:RuleManager) -> RuleData:
     var node := RuleData.new()
     var rule_name: String = data.get("rule", "")
-    #TODO: Make rule lookup
-    #node.rule = rule_lookup[rule_name]
+
+    node.rule = rule_manager.get_custom_rule(rule_name)
     node.options = data.get("options", [])
     if data.has("children"):
         for c in data["children"]:
-            node.children.append(RuleData.from_dict(c))
+            node.children.append(RuleData.from_dict(c, rule_manager))
     else:
         node.args = data.get("args", {})
     return node

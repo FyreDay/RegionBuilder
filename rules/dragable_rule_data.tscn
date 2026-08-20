@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://djh5ousj1wlk0" path="res://rules/dragable_rule_data.gd" id="1_pse4b"]
 
-[node name="DragableCustomRuleRef" type="VBoxContainer" unique_id=1437571394]
+[node name="DragableRuleData" type="VBoxContainer" unique_id=1437571394]
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -16,6 +16,8 @@ layout_mode = 2
 
 [node name="NameRef" type="LineEdit" parent="Rule" unique_id=1303274341]
 layout_mode = 2
+mouse_filter = 2
+mouse_default_cursor_shape = 0
 editable = false
 expand_to_text_length = true
 emoji_menu_enabled = false
@@ -43,5 +45,6 @@ text = "Add"
 layout_mode = 2
 text = "Remove"
 
+[connection signal="focus_exited" from="Rule/NameRef" to="." method="_on_name_ref_focus_exited"]
 [connection signal="pressed" from="MarginContainer/RuleChildren/Buttons/Add" to="." method="_on_add_pressed"]
 [connection signal="pressed" from="MarginContainer/RuleChildren/Buttons/Remove" to="." method="_on_remove_pressed"]

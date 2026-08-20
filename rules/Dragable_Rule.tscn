@@ -17,6 +17,7 @@ expand_to_text_length = true
 context_menu_enabled = false
 emoji_menu_enabled = false
 selecting_enabled = false
+drag_and_drop_selection_enabled = false
 select_all_on_focus = true
 script = ExtResource("1_qckad")
 

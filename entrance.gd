@@ -37,6 +37,9 @@ var rule_combo:RuleCombo
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
     z_index = 10
+    print("rule_name = ", rule_name)
+    print("rule_plate = ", rule_plate)
+    print("name_edit = ", name_edit)
     rule_plate.hide()
 
 

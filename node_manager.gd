@@ -443,13 +443,13 @@ func save_data():
                 ],
                 "id" : string_to_id(child.entrance_name),
                 "name": child.entrance_name,
-                "rule": child.rule_text,
+                "rule_name": child.rule_combo.combo_name,
                 "dual_directional": child.duel_directonal
             })
     save_data_ready.emit(data)
     return data
 
-func load_data(data: Dictionary):
+func load_data(data: Dictionary, rule_combo_manager:RulePaletteManager):
     var region_lookup := {}
     var regions = []
     var entrances = []
@@ -527,12 +527,13 @@ func load_data(data: Dictionary):
             entrance_data.dual_directional,
             entrance_data.name
         )
-        entrance.rule_text = entrance_data.rule
+        
 
         connect_entrance_signals(entrance)
 
         add_child(entrance)
         entrances.append(entrance)
+        entrance.set_rule(rule_combo_manager.get_rule_combo(entrance_data.get("rule_name")))
     undo_load(regions, entrances)
         
 func undo_load(regions, entrances):

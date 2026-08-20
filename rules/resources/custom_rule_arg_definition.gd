@@ -8,7 +8,6 @@ enum RuleArgType {
     FLOAT,
     BOOL,
     STRING_LIST,
-    RULE_LIST
 }
 
 @export var arg_name: String
@@ -38,8 +37,6 @@ func _get_property_list() -> Array[Dictionary]:
             type_to_assign = TYPE_BOOL
         RuleArgType.STRING_LIST:
             type_to_assign = TYPE_ARRAY
-        RuleArgType.RULE_LIST:
-            type_to_assign = TYPE_ARRAY
 
     properties.append({
         "name": "default_value",
@@ -62,6 +59,4 @@ func _reset_default_value() -> void:
         RuleArgType.BOOL:
             default_value = false
         RuleArgType.STRING_LIST:
-            default_value = []
-        RuleArgType.RULE_LIST:
             default_value = []

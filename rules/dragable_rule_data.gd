@@ -15,20 +15,38 @@ func _ready() -> void:
     pass # Replace with function body.
 
 var dragging:bool
+var click_held:bool
+const dragtime = .3
+var drag_timer = 0
+
 var rule_data: RuleData
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+    if click_held:
+        drag_timer += delta
+        if drag_timer >= dragtime:
+            drag_timer = 0
+            dragging = true
+            if get_parent() is RuleSpot:
+                get_parent().release_dragable_rule()
+            click_held = false
+            
     if not dragging:
         return
-    position = get_parent().get_local_mouse_position()
+    position = get_parent().get_local_mouse_position() + Vector2(5,5)
     queue_redraw()
 
     if not Input.is_action_pressed("click"):
         if drag_layer.hovered_rule_spot == null:
             queue_free()
+            print("destroy myself")
             return
         drag_layer.hovered_rule_spot.set_rule(self)
         dragging = false
+    
+    
+    #test
+    
         
 func setup_with_data(custom_rule:RuleData, new_drag_layer:DragLayer):
     drag_layer = new_drag_layer
@@ -44,17 +62,17 @@ func setup(custom_rule:CustomRule, is_dragging):
     rule_data.rule = custom_rule
     dragging = is_dragging
     name_ref.text = custom_rule.rule_name
-    for key in custom_rule.arg_name_to_type:
-        rule_data.args[key]=rule_data.rule.arg_name_to_type[key].default_value
+    for key in custom_rule.arg_definitions:
+        rule_data.args[key]=rule_data.rule.arg_definitions[key].default_value
     create_args()
     if not rule_data.rule.is_combinator:
         buttons.hide()    
 
 func create_args():
-    for key in rule_data.rule.arg_name_to_type:
+    for key in rule_data.rule.arg_definitions:
         var new_arg = rule_arg.instantiate()
         rule_args.add_child(new_arg)
-        new_arg.setup(key,rule_data.rule.arg_name_to_type[key], rule_data.args[key], rule_data)
+        new_arg.setup(key,rule_data.rule.arg_definitions[key], rule_data.args[key], rule_data)
 
 func create_children():
     if rule_data.rule.is_combinator:
@@ -67,6 +85,20 @@ func create_children():
     else:
         buttons.hide()
     
+
+func _gui_input(event: InputEvent) -> void:
+    if event is InputEventMouseButton:
+        print("mousebutton")
+        if event.button_index == MOUSE_BUTTON_LEFT:
+            print("left click")
+            if event.pressed and not dragging:
+                click_held = true
+                print("click held")
+                
+    if event is InputEventMouseMotion:
+        if not(click_held and Input.is_action_pressed("click")):
+            click_held = false
+            drag_timer = 0
 
 func _on_add_pressed() -> void:
     var new_spot = rule_spot.instantiate()
@@ -90,3 +122,10 @@ func _on_remove_pressed() -> void:
     queue_redraw()
     
     
+
+
+func _on_name_ref_focus_exited() -> void:
+    if click_held:
+        drag_timer = 0
+        click_held = false
+        dragging = true

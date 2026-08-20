@@ -24,6 +24,14 @@ layout_mode = 2
 [node name="BoolValue" type="CheckBox" parent="." unique_id=1619398589]
 layout_mode = 2
 
+[node name="StringListValue" type="HBoxContainer" parent="." unique_id=694201579]
+layout_mode = 2
+
+[node name="Add" type="Button" parent="StringListValue" unique_id=186186394]
+layout_mode = 2
+text = "Add"
+
 [connection signal="text_changed" from="StringValue" to="." method="_on_string_value_text_changed"]
 [connection signal="value_changed" from="IntValue" to="." method="_on_int_value_value_changed"]
 [connection signal="toggled" from="BoolValue" to="." method="_on_bool_value_toggled"]
+[connection signal="pressed" from="StringListValue/Add" to="." method="_on_string_list_add_pressed"]

@@ -36,7 +36,7 @@ func _on_load_data(path):
         push_error("Invalid project: metadata.json is missing")
         zip.close()
         return
-    if not zip.file_exists("nodes.json"):
+    if not zip.file_exists("data.json"):
         push_error("Invalid project: nodes.json is missing")
         zip.close()
         return
@@ -77,24 +77,26 @@ func _on_load_data(path):
 
     print("Metadata valid")
     
-    var nodes_bytes := zip.read_file("nodes.json")
-    var nodes_text := nodes_bytes.get_string_from_utf8()
+    var data_bytes := zip.read_file("data.json")
+    var data_text := data_bytes.get_string_from_utf8()
 
-    var nodes_data = JSON.parse_string(nodes_text)
+    var data = JSON.parse_string(data_text)
 
-    if nodes_data == null or not nodes_data is Dictionary:
-        push_error("Invalid project: nodes.json is not valid JSON")
+    if data == null or not data is Dictionary or not data.has("nodes") or not data.has("rules"):
+        push_error("Invalid project: data.json is not valid JSON")
         zip.close()
         return
     if meta.image_name != "":
         map.set_map(image, meta.image_name)
-    node_manager.load_data(nodes_data)
+    ui.load_rule_data(data.get("rules"))
+    node_manager.load_data(data.get("nodes"), ui.rule_palette_manager)
     
     zip.close()
 
 func _on_save_data():
     print("save data")
-    pending_json = JSON.stringify(node_manager.save_data())
+    var data = {"nodes": node_manager.save_data(), "rules": ui.save_rule_data()}
+    pending_json = JSON.stringify(data)
     pending_image = map.image
     pending_meta_json = JSON.stringify({
         "version": "0.0.1",
@@ -115,7 +117,7 @@ func _on_save_path(path):
         push_error("Failed to create ZIP: " + str(err))
         return
     
-    zip.start_file("nodes.json")
+    zip.start_file("data.json")
     zip.write_file(pending_json.to_utf8_buffer())
     zip.close_file()
 
@@ -163,8 +165,6 @@ func generate_regions_python(data):
         output += '    ' + region.id + ' = ' + JSON.stringify(region.name) + '\n'
     return output
     
-#TODO: auto generate the rule_builder rule imports.
-#TODO: generate imports from user's rule file
 const ENTRANCES_HEADER := """\
 from enum import Enum
 
@@ -172,12 +172,12 @@ from .regions import Regions
 from rule_builder.rules import Has, True_
 
 class EntranceTypeEnum(Enum):
-    def __init__(self, value: str, exiting_region: RegionTypeEnum, entering_region: RegionTypeEnum, direction_type: DirectionType, transition_type: TransitionType, rule):
+    def __init__(self, value: str, exiting_region: RegionTypeEnum, entering_region: RegionTypeEnum, entrance_group: Number, rule):
         # self._value_ must be set to the first element to support lookup by value
         self._value_ = value
         self.exiting_screen = exiting_region
         self.entering_screen = entering_region
-        self.entrance_group = transition_type
+        self.entrance_group = entrance_group
         self.rule = rule
 
 

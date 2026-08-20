@@ -64,8 +64,6 @@ func _gui_input(event: InputEvent) -> void:
         if not(dragging and Input.is_action_pressed("click")):
             dragging = false
             drag_timer = 0
-            
-        
 
 func _on_mouse_entered() -> void:
     mouse_over = true

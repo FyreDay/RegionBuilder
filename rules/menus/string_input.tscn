@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cyynnmtck2724"]
+
+[node name="StringInput" type="LineEdit" unique_id=371951095]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+emoji_menu_enabled = false
+clear_button_enabled = true

@@ -4,9 +4,11 @@
 [ext_resource type="Texture2D" uid="uid://bboquyyjxa6yl" path="res://assets/burger.png" id="2_m6e0p"]
 [ext_resource type="Texture2D" uid="uid://ohxsu3i88sia" path="res://assets/burger_click.png" id="3_nltto"]
 [ext_resource type="Texture2D" uid="uid://be045o8wfcsdp" path="res://assets/burger_highlight.png" id="4_ibotj"]
+[ext_resource type="Script" uid="uid://cddowuyxjnoc6" path="res://rule_palette_manager.gd" id="5_e2l4f"]
 [ext_resource type="Script" uid="uid://cfvvrxs5rmoe" path="res://rules/drag_layer.gd" id="5_ibotj"]
 [ext_resource type="PackedScene" uid="uid://djqt413xwjalu" path="res://rules/dragable_custom_rule.tscn" id="5_n5ude"]
 [ext_resource type="PackedScene" uid="uid://76e4l1hexqkq" path="res://rules/rule_spot.tscn" id="5_ok7cu"]
+[ext_resource type="Script" uid="uid://cvkdd7joyh0f8" path="res://rule_container.gd" id="6_irxef"]
 [ext_resource type="Script" uid="uid://qimhwmqrpvh3" path="res://rules/resources/custom_rule_arg_definition.gd" id="6_waa4j"]
 [ext_resource type="Script" uid="uid://hpud8oi5gfh1" path="res://rules/resources/custom_rule_definition.gd" id="7_ok7cu"]
 
@@ -79,6 +81,26 @@ metadata/_custom_type_script = "uid://qimhwmqrpvh3"
 script = ExtResource("7_ok7cu")
 rule_name = "HasAny"
 arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_vkygq")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
+
+[sub_resource type="Resource" id="Resource_cxd00"]
+script = ExtResource("6_waa4j")
+arg_name = "item_names"
+arg_type = 4
+default_value = []
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_etlur"]
+script = ExtResource("6_waa4j")
+arg_name = "count"
+arg_type = 1
+default_value = 1
+metadata/_custom_type_script = "uid://qimhwmqrpvh3"
+
+[sub_resource type="Resource" id="Resource_nvb2n"]
+script = ExtResource("7_ok7cu")
+rule_name = "HasFromListUnique"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_cxd00"), SubResource("Resource_etlur")])
 metadata/_custom_type_script = "uid://hpud8oi5gfh1"
 
 [node name="UI" type="Control" unique_id=2092799128]
@@ -188,11 +210,12 @@ grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="RulePaleteContainer" type="VBoxContainer" parent="CanvasLayer/PalettePanel/ScrollContainer" unique_id=806044165]
+[node name="RulePaletteManager" type="VBoxContainer" parent="CanvasLayer/PalettePanel/ScrollContainer" unique_id=806044165]
 layout_mode = 2
 size_flags_vertical = 3
+script = ExtResource("5_e2l4f")
 
-[node name="New" type="Button" parent="CanvasLayer/PalettePanel/ScrollContainer/RulePaleteContainer" unique_id=1446262195]
+[node name="New" type="Button" parent="CanvasLayer/PalettePanel/ScrollContainer/RulePaletteManager" unique_id=1446262195]
 layout_mode = 2
 text = "New"
 
@@ -284,38 +307,49 @@ grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="RuleContainer" type="VBoxContainer" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer" unique_id=538266127]
+[node name="RuleManager" type="VBoxContainer" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer" unique_id=538266127]
 layout_mode = 2
 size_flags_vertical = 3
+script = ExtResource("6_irxef")
 
-[node name="And" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=448951901 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+[node name="And" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=448951901 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
 layout_mode = 2
 custom_rule_def = SubResource("Resource_gs482")
 drag_layer = NodePath("../../../../../DragLayer")
 
-[node name="Or" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1613553669 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+[node name="Or" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=1613553669 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
 layout_mode = 2
 custom_rule_def = SubResource("Resource_7rqds")
 drag_layer = NodePath("../../../../../DragLayer")
 
-[node name="AtLeast" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1757446067 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+[node name="AtLeast" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=1757446067 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
 layout_mode = 2
 custom_rule_def = SubResource("Resource_b2p7n")
 drag_layer = NodePath("../../../../../DragLayer")
 
-[node name="Has" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1548108619 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+[node name="Has" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=1548108619 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
 layout_mode = 2
 custom_rule_def = SubResource("Resource_irxef")
 drag_layer = NodePath("../../../../../DragLayer")
 
-[node name="HasAll" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=2100617693 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+[node name="HasAll" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=2100617693 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
 layout_mode = 2
 custom_rule_def = SubResource("Resource_n5rqp")
 drag_layer = NodePath("../../../../../DragLayer")
 
-[node name="HasAny" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleContainer" unique_id=1702151136 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+[node name="HasAny" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=1702151136 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
 layout_mode = 2
 custom_rule_def = SubResource("Resource_sosvr")
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="HasFromList" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=1224272600 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_nvb2n")
+drag_layer = NodePath("../../../../../DragLayer")
+
+[node name="HasFromListUnique" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=2141162639 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
+layout_mode = 2
+custom_rule_def = SubResource("Resource_nvb2n")
 drag_layer = NodePath("../../../../../DragLayer")
 
 [node name="DragLayer" type="Control" parent="CanvasLayer" unique_id=1457058640]
@@ -341,6 +375,6 @@ title = "Are You Sure?"
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/LoadButton" to="." method="_on_load_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/ExportButton" to="." method="_on_export_button_pressed"]
 [connection signal="toggled" from="CanvasLayer/PalettePanel/Title/RuleBuilderToggle" to="." method="_on_rule_builder_toggled"]
-[connection signal="pressed" from="CanvasLayer/PalettePanel/ScrollContainer/RulePaleteContainer/New" to="." method="_on_new_pressed"]
+[connection signal="pressed" from="CanvasLayer/PalettePanel/ScrollContainer/RulePaletteManager/New" to="CanvasLayer/PalettePanel/ScrollContainer/RulePaletteManager" method="_on_new_pressed"]
 [connection signal="canceled" from="CanvasLayer/DragLayer/ConfirmationDialog" to="CanvasLayer/DragLayer" method="_on_confirmation_dialog_canceled"]
 [connection signal="confirmed" from="CanvasLayer/DragLayer/ConfirmationDialog" to="CanvasLayer/DragLayer" method="_on_confirmation_dialog_confirmed"]

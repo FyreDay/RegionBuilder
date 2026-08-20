@@ -14,5 +14,5 @@ func get_data():
         var arg_type = ArgType.new()
         arg_type.arg_type = arg.arg_type
         arg_type.default_value = arg.default_value
-        new.arg_name_to_type[arg.arg_name] = arg_type
+        new.arg_definitions[arg.arg_name] = arg_type
     return new

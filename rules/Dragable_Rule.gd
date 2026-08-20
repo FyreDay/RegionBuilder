@@ -61,7 +61,7 @@ func _gui_input(event: InputEvent) -> void:
             elif mouse_over:
                 click_count += 1
         if event.button_index == MOUSE_BUTTON_RIGHT:
-            if event.pressed:
+            if event.pressed and rule_combo.root:
                 print(str(rule_combo.root.to_dict()))
                 
                 

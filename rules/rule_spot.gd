@@ -3,8 +3,6 @@ extends PanelContainer
 
 @export var drag_layer:Control
 
-var dragable_ref = preload("res://rules/dragable_rule_data.tscn")
-
 signal is_hovered(RuleSpot)
 signal new_root(RuleData)
 
@@ -31,6 +29,7 @@ func setup(new_drag_layer:Control, new_parent_rule_data):
         
 
 func _on_mouse_exited() -> void:
+    print("mouse enteted")
     hovered = false
     _update_style()
     is_hovered.emit(self)
@@ -42,17 +41,27 @@ func from_rule_data(new_rule_data:RuleData):
     if dragable_rule_data:
         dragable_rule_data.free()
         dragable_rule_data = null
+
     if new_rule_data:
+        var dragable_ref: PackedScene = load(
+            "res://rules/dragable_rule_data.tscn"
+        )
         dragable_rule_data = dragable_ref.instantiate()
         add_child(dragable_rule_data)
         dragable_rule_data.setup_with_data(new_rule_data, drag_layer)
         
         if is_hovered.is_connected(drag_layer.update_rule_spot):
             is_hovered.disconnect(drag_layer.update_rule_spot)
-    redraw()
+    else:
+        is_hovered.connect(drag_layer.update_rule_spot)
+    _update_style()
     
 
 func set_rule(new_dragable_rule_data:DragableRuleData):
+    print("set Rule")
+    if dragable_rule_data:
+        dragable_rule_data.free()
+        dragable_rule_data = null
     dragable_rule_data = new_dragable_rule_data  
     dragable_rule_data.reparent(self)
     if parent_rule_data:
@@ -62,11 +71,7 @@ func set_rule(new_dragable_rule_data:DragableRuleData):
     is_hovered.emit(null)
     if is_hovered.is_connected(drag_layer.update_rule_spot):
         is_hovered.disconnect(drag_layer.update_rule_spot)
-    redraw()
-
-func redraw():
     _update_style()
-    queue_redraw()
 
 func _update_style() -> void:
     if dragable_rule_data == null:
@@ -87,9 +92,16 @@ func _update_style() -> void:
 
         add_theme_stylebox_override("panel", style)
     else:
-        print("remove")
         remove_theme_stylebox_override("panel")
+    queue_redraw()
         
-#func _on_data_updated(new_rule_data:RuleData):
-    #data_updated.emit(new_rule_data)
+func release_dragable_rule():
+    var rule = dragable_rule_data
+    if parent_rule_data:
+        parent_rule_data.remove_child_data(rule.rule_data)
+    dragable_rule_data = null
+    is_hovered.connect(drag_layer.update_rule_spot)
+    rule.reparent(drag_layer)
+    
+    _update_style()
         
