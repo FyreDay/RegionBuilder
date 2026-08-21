@@ -3,7 +3,8 @@ extends HBoxContainer
 
 @onready var label: Label = $Label
 @onready var text_value: LineEdit = $StringValue
-@onready var number_value: SpinBox = $IntValue
+@onready var int_value: SpinBox = $IntValue
+@onready var number_value: SpinBox = $FloatValue
 @onready var bool_value: CheckBox = $BoolValue
 @onready var string_list: HBoxContainer = $StringListValue
 @onready var add_string_list: Button = $StringListValue/Add
@@ -18,9 +19,11 @@ func setup(new_arg_name: String, definition: ArgType, value, new_rule_data:RuleD
     label.text = new_arg_name
     rule_data = new_rule_data
     text_value.hide()
+    int_value.hide()
     number_value.hide()
     bool_value.hide()
     string_list.hide()
+    rule_data.set_arg(arg_name, value)
 
     match definition.arg_type:
         CustomRuleArgumentDefinition.RuleArgType.STRING:
@@ -28,8 +31,8 @@ func setup(new_arg_name: String, definition: ArgType, value, new_rule_data:RuleD
             text_value.text = str(value)
 
         CustomRuleArgumentDefinition.RuleArgType.INT:
-            number_value.show()
-            number_value.value = int(value)
+            int_value.show()
+            int_value.value = int(value)
         CustomRuleArgumentDefinition.RuleArgType.FLOAT:
             number_value.show()
             number_value.value = float(value)
@@ -40,6 +43,13 @@ func setup(new_arg_name: String, definition: ArgType, value, new_rule_data:RuleD
         
         CustomRuleArgumentDefinition.RuleArgType.STRING_LIST:
             string_list.show()
+            for str_value in value:
+                var str_input = string_input.instantiate()
+                string_list.add_child(str_input)
+                str_input.text = str_value
+                str_input.text_changed.connect(_on_string_list_value_changed)
+                string_list.move_child(add_string_list, string_list.get_child_count() - 1)
+                
     
         
 func _on_string_value_text_changed(new_text: String) -> void:

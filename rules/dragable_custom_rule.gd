@@ -16,7 +16,8 @@ var custom_rule:CustomRule
 @export var drag_layer:Control
 
 func _ready() -> void:
-    set_rule(custom_rule_def.get_data())
+    if custom_rule_def:
+        set_rule(custom_rule_def.get_data())
 
 func _process(delta: float) -> void:
     if click_count > 0:
@@ -59,6 +60,9 @@ func _gui_input(event: InputEvent) -> void:
             elif mouse_over and custom_rule.editable:
                 print("click")
                 click_count += 1
+        if event.button_index == MOUSE_BUTTON_RIGHT:
+            if event.pressed and custom_rule:
+                print(str(custom_rule.to_dict()))
                 
     if event is InputEventMouseMotion:
         if not(dragging and Input.is_action_pressed("click")):

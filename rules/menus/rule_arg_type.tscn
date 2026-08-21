@@ -2,8 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b60yy8ienyqwb" path="res://rules/menus/rule_arg_type.gd" id="1_hgt43"]
 
-[node name="RuleArgType" type="Control" unique_id=1738170653]
-layout_mode = 3
+[node name="RuleArgType" type="HBoxContainer" unique_id=1051691005]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -11,16 +10,52 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hgt43")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=254675782]
-layout_mode = 0
-
-[node name="ArgType" type="OptionButton" parent="HBoxContainer" unique_id=32376985]
+[node name="ArgType" type="OptionButton" parent="." unique_id=32376985]
 layout_mode = 2
-item_count = 2
-popup/item_0/text = "number"
-popup/item_0/id = 0
-popup/item_1/text = "string"
-popup/item_1/id = 1
 
-[node name="ArgName" type="LineEdit" parent="HBoxContainer" unique_id=224746862]
+[node name="Label" type="Label" parent="." unique_id=108755323]
 layout_mode = 2
+text = "Name"
+
+[node name="ArgName" type="LineEdit" parent="." unique_id=224746862]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="." unique_id=295698084]
+layout_mode = 2
+text = "Default"
+
+[node name="StringValue" type="LineEdit" parent="." unique_id=60366090]
+layout_mode = 2
+expand_to_text_length = true
+emoji_menu_enabled = false
+
+[node name="IntValue" type="SpinBox" parent="." unique_id=351381851]
+layout_mode = 2
+min_value = -100.0
+rounded = true
+allow_greater = true
+allow_lesser = true
+prefix = "Value"
+
+[node name="FloatValue" type="SpinBox" parent="." unique_id=1560429728]
+layout_mode = 2
+min_value = -1000.0
+max_value = 1000.0
+step = 0.0
+allow_greater = true
+allow_lesser = true
+prefix = "Value"
+
+[node name="BoolValue" type="CheckBox" parent="." unique_id=184482507]
+layout_mode = 2
+text = "Value"
+
+[node name="StringListValue" type="HBoxContainer" parent="." unique_id=1052152698]
+layout_mode = 2
+
+[node name="Add" type="Button" parent="StringListValue" unique_id=934882473]
+layout_mode = 2
+text = "Add"
+
+[connection signal="item_selected" from="ArgType" to="." method="_on_arg_type_item_selected"]
+[connection signal="text_changed" from="ArgName" to="." method="_on_arg_name_text_changed"]

@@ -6,6 +6,7 @@ var default_value
     
 func to_dict() -> Dictionary:
     var d := {"arg_type": arg_type, "default_value": default_value}
+    print(default_value)
     return d
 
 static func from_dict(data: Dictionary) -> ArgType:

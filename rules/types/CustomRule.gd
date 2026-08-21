@@ -8,8 +8,9 @@ var is_combinator = false
 var rule_name: String
 var arg_definitions: Dictionary[String, ArgType] = {}
 
-func set_rule_name(new_name: String) -> void:
-    rule_name = new_name
+func trigger_update(custom_rule:CustomRule) -> void:
+    rule_name = custom_rule.rule_name
+    arg_definitions = custom_rule.arg_definitions
     changed.emit()
 
 func to_dict() -> Dictionary:

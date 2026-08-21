@@ -26,6 +26,8 @@ signal rule_builder_toggled(bool)
 @onready var rule_manager: RuleManager = $CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager
 @onready var rule_palette_manager: RulePaletteManager = $CanvasLayer/PalettePanel/ScrollContainer/RulePaletteManager
 
+@onready var custom_rule_creator: CustomRuleCreator = $CustomRuleCreator
+
 var dragable = preload("res://rules/Dragable_Rule.tscn")
 
 var palette_open = false
@@ -119,3 +121,7 @@ func save_rule_data():
 func load_rule_data(data:Dictionary):
     rule_manager.load_data(data, drag_layer)
     rule_palette_manager.load_data(data, rule_manager, drag_layer)
+
+
+func _on_open_creator_pressed() -> void:
+    custom_rule_creator.popup(CustomRule.new(), rule_manager, drag_layer)

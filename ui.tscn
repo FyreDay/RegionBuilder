@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dhq3kxbfkgart" path="res://ui.gd" id="1_fyqef"]
 [ext_resource type="Texture2D" uid="uid://bboquyyjxa6yl" path="res://assets/burger.png" id="2_m6e0p"]
+[ext_resource type="PackedScene" uid="uid://mitf4vuurruh" path="res://rules/menus/custom_rule_creator.tscn" id="2_n5rqp"]
 [ext_resource type="Texture2D" uid="uid://ohxsu3i88sia" path="res://assets/burger_click.png" id="3_nltto"]
 [ext_resource type="Texture2D" uid="uid://be045o8wfcsdp" path="res://assets/burger_highlight.png" id="4_ibotj"]
 [ext_resource type="Script" uid="uid://cddowuyxjnoc6" path="res://rule_palette_manager.gd" id="5_e2l4f"]
@@ -99,6 +100,12 @@ metadata/_custom_type_script = "uid://qimhwmqrpvh3"
 
 [sub_resource type="Resource" id="Resource_nvb2n"]
 script = ExtResource("7_ok7cu")
+rule_name = "HasFromList"
+arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_cxd00"), SubResource("Resource_etlur")])
+metadata/_custom_type_script = "uid://hpud8oi5gfh1"
+
+[sub_resource type="Resource" id="Resource_ndy3v"]
+script = ExtResource("7_ok7cu")
 rule_name = "HasFromListUnique"
 arguments = Array[ExtResource("6_waa4j")]([SubResource("Resource_cxd00"), SubResource("Resource_etlur")])
 metadata/_custom_type_script = "uid://hpud8oi5gfh1"
@@ -138,6 +145,9 @@ title = "Open a Directory"
 file_mode = 2
 access = 2
 use_native_dialog = true
+
+[node name="CustomRuleCreator" parent="." unique_id=489813692 instance=ExtResource("2_n5rqp")]
+layout_mode = 1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=712812227]
 
@@ -293,7 +303,7 @@ size_flags_horizontal = 3
 text = "Rule parts"
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="CanvasLayer/RuleEditor/RulePartPanel/Title" unique_id=1935366952]
+[node name="OpenCreator" type="Button" parent="CanvasLayer/RuleEditor/RulePartPanel/Title" unique_id=1935366952]
 layout_mode = 2
 text = "Add Custom"
 
@@ -349,7 +359,7 @@ drag_layer = NodePath("../../../../../DragLayer")
 
 [node name="HasFromListUnique" parent="CanvasLayer/RuleEditor/RulePartPanel/ScrollContainer/RuleManager" unique_id=2141162639 node_paths=PackedStringArray("drag_layer") instance=ExtResource("5_n5ude")]
 layout_mode = 2
-custom_rule_def = SubResource("Resource_nvb2n")
+custom_rule_def = SubResource("Resource_ndy3v")
 drag_layer = NodePath("../../../../../DragLayer")
 
 [node name="DragLayer" type="Control" parent="CanvasLayer" unique_id=1457058640]
@@ -376,5 +386,6 @@ title = "Are You Sure?"
 [connection signal="pressed" from="CanvasLayer/Panel/HBoxContainer/ExportButton" to="." method="_on_export_button_pressed"]
 [connection signal="toggled" from="CanvasLayer/PalettePanel/Title/RuleBuilderToggle" to="." method="_on_rule_builder_toggled"]
 [connection signal="pressed" from="CanvasLayer/PalettePanel/ScrollContainer/RulePaletteManager/New" to="CanvasLayer/PalettePanel/ScrollContainer/RulePaletteManager" method="_on_new_pressed"]
+[connection signal="pressed" from="CanvasLayer/RuleEditor/RulePartPanel/Title/OpenCreator" to="." method="_on_open_creator_pressed"]
 [connection signal="canceled" from="CanvasLayer/DragLayer/ConfirmationDialog" to="CanvasLayer/DragLayer" method="_on_confirmation_dialog_canceled"]
 [connection signal="confirmed" from="CanvasLayer/DragLayer/ConfirmationDialog" to="CanvasLayer/DragLayer" method="_on_confirmation_dialog_confirmed"]

@@ -20,6 +20,18 @@ emoji_menu_enabled = false
 
 [node name="IntValue" type="SpinBox" parent="." unique_id=1897634937]
 layout_mode = 2
+min_value = -100.0
+rounded = true
+allow_greater = true
+allow_lesser = true
+
+[node name="FloatValue" type="SpinBox" parent="." unique_id=490410251]
+layout_mode = 2
+min_value = -1000.0
+max_value = 1000.0
+step = 0.0
+allow_greater = true
+allow_lesser = true
 
 [node name="BoolValue" type="CheckBox" parent="." unique_id=1619398589]
 layout_mode = 2
@@ -33,5 +45,6 @@ text = "Add"
 
 [connection signal="text_changed" from="StringValue" to="." method="_on_string_value_text_changed"]
 [connection signal="value_changed" from="IntValue" to="." method="_on_int_value_value_changed"]
+[connection signal="value_changed" from="FloatValue" to="." method="_on_int_value_value_changed"]
 [connection signal="toggled" from="BoolValue" to="." method="_on_bool_value_toggled"]
 [connection signal="pressed" from="StringListValue/Add" to="." method="_on_string_list_add_pressed"]
